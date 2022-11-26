@@ -1,0 +1,23 @@
+{
+    "wallet" : "Pochi",
+    "home" : "Nyumbani",
+    "favorites" : "Vipendwa",
+    "account" : "Akaunti",
+    "clearAll" : "Wazi yote",
+    "customOrder": "Utaratibu maalum",
+    "settings": "Mipangilio",
+    "becomeALandlord": "Kuwa mwenye nyumba",
+    "logout": "Kuondoka",
+    "notifications" : "Arifa",
+    "payUtilities":"Kulipa huduma",
+    "deposit":"Amana",
+    "results":"Matokeo",
+    "filter":"Chuja",
+    "save":"Hifadhi",
+    "category":"Kategoria",
+    "location":"Mahali",
+    "price":"Bei",
+    "search":"Tafuta",
+    "property":"Mali",
+    "connect":"Unganisha"
+}

@@ -1,0 +1,23 @@
+{
+    "wallet" : "Wallet",
+    "home" : "Home",
+    "favorites" : "Favorites",
+    "account" : "Account",
+    "clearAll" : "Clear all",
+    "customOrder": "Custom order",
+    "settings": "Settings",
+    "becomeALandlord": "Become a landlord",
+    "logout": "Logout",
+    "notifications" : "Notifications",
+    "payUtilities":"Pay utilities",
+    "deposit":"Deposit",
+    "results":"Results",
+    "filter":"Filter",
+    "save":"Save",
+    "category":"Category",
+    "location":"Location",
+    "price":"Price",
+    "search":"Search",
+    "property":"Property",
+    "connect":"Connect"
+}
