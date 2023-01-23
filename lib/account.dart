@@ -1,14 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:nyumba/LanguageChangeProvider.dart';
 import 'package:nyumba/notification.dart';
+import 'package:nyumba/pages/login.dart';
+import 'package:nyumba/providers/spesnow_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'generated/l10n.dart';
 
-class Account extends StatelessWidget {
+class Account extends StatefulWidget {
   const Account({super.key});
 
   @override
+  State<Account> createState() => _AccountState();
+}
+
+class _AccountState extends State<Account> {
+  
+  bool _isLoggedIn = true;
+  @override
+  void initState() {
+    _check();
+    super.initState();
+  }
+
+  _check() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('token');
+    if (token == null) {
+      setState(() {
+        _isLoggedIn = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (!_isLoggedIn) {
+      return const Login();
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown,
@@ -62,15 +91,25 @@ class Account extends StatelessWidget {
                 leading: const Icon(Icons.settings),
               ),
             ),
-            Card(
-              child: ListTile(
-                title: Text(
-                  S.of(context).logout,
-                  style: const TextStyle(color: Colors.brown),
-                ),
-                leading: const Icon(
-                  Icons.logout,
-                  color: Colors.brown,
+            GestureDetector(
+              onTap: (() async {
+                final prefs = await SharedPreferences.getInstance();
+                final String? token = prefs.getString('token');
+                await SpesnowProvider().logout(token!);
+                setState(() {
+                  _isLoggedIn = false;
+                });
+              }),
+              child: Card(
+                child: ListTile(
+                  title: Text(
+                    S.of(context).logout,
+                    style: const TextStyle(color: Colors.brown),
+                  ),
+                  leading: const Icon(
+                    Icons.logout,
+                    color: Colors.brown,
+                  ),
                 ),
               ),
             ),

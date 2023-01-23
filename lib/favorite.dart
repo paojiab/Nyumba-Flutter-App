@@ -1,12 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:nyumba/pages/login.dart';
 import 'package:nyumba/property.dart';
+import 'package:nyumba/providers/spesnow_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'generated/l10n.dart';
+import 'package:http/http.dart' as http;
 
-class Favorite extends StatelessWidget {
+import 'models/rental.dart';
+
+class Favorite extends StatefulWidget {
   const Favorite({super.key});
 
   @override
+  State<Favorite> createState() => _FavoriteState();
+}
+
+class _FavoriteState extends State<Favorite> {
+  bool _isLoggedIn = true;
+  @override
+  void initState() {
+    _check();
+    super.initState();
+  }
+
+  _check() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('token');
+    if (token == null) {
+      setState(() {
+        _isLoggedIn = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (!_isLoggedIn) {
+      return const Login();
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown,
@@ -25,133 +56,145 @@ class Favorite extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
-          child: Column(
-            children: [
-              SizedBox(
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(S.of(context).favorites + " (2)"),
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: Text(S.of(context).clearAll),
-                        ),
-                      ],
+          child: FutureBuilder<List<Rental>>(
+            future: SpesnowProvider().fetchFavoriteRentals(http.Client()),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                print(snapshot.error);
+                return const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text('An error has occurred!'),
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                if (snapshot.data!.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text('No favorites found'),
                     ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Property()),
-                  ),
-                  child: SizedBox(
-                    child: Card(
-                      shape: const RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.brown),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              'images/hero-img.jpg',
-                              width: 100,
-                              height: 100,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Apartment for rent'),
-                                const Text(
-                                  'Ush 800,000',
-                                  style: TextStyle(
-                                      color: Colors.brown,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Row(children: const [
-                                  Icon(Icons.location_pin),
-                                  Text('Kampala'),
-                                ]),
-                              ],
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Icon(
-                                Icons.cancel,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Property()),
-                  ),
-                  child: SizedBox(
-                    child: Card(
-                      shape: const RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.brown),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              'images/hero-img.jpg',
-                              width: 100,
-                              height: 100,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Apartment for rent'),
-                                const Text(
-                                  'Ush 800,000',
-                                  style: TextStyle(
-                                      color: Colors.brown,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Row(children: const [
-                                  Icon(Icons.location_pin),
-                                  Text('Kampala'),
-                                ]),
-                              ],
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Icon(
-                                Icons.cancel,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+                  );
+                } else {
+                  return RentalsList(rentals: snapshot.data!);
+                }
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
           ),
         ),
       ),
+    );
+  }
+}
+
+class RentalsList extends StatefulWidget {
+  const RentalsList({super.key, required this.rentals});
+
+  final List<Rental> rentals;
+
+  @override
+  State<RentalsList> createState() => _RentalsListState();
+}
+
+class _RentalsListState extends State<RentalsList> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(S.of(context).favorites),
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: Text((widget.rentals.length).toString()),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        ListView.builder(
+            shrinkWrap: true,
+            itemCount: widget.rentals.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Property(
+                              id: widget.rentals[index].id,
+                            )),
+                  ),
+                  child: SizedBox(
+                    child: Card(
+                      shape: const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.brown),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Image.asset(
+                              'images/hero-img.jpg',
+                              width: 100,
+                              height: 100,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(widget.rentals[index].title),
+                                Text(
+                                  (widget.rentals[index].price).toString(),
+                                  style: const TextStyle(
+                                      color: Colors.brown,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Row(children: [
+                                  const Icon(Icons.location_pin),
+                                  Text(widget.rentals[index].district),
+                                ]),
+                              ],
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                await SpesnowProvider()
+                                    .removeFavorite(widget.rentals[index].id);
+                                setState(() {
+                                  widget.rentals.removeAt(index);
+                                });
+                                const snackBar = SnackBar(
+                                  content:
+                                      Text('Rental removed from favorites'),
+                                );
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
+                              },
+                              child: const Icon(
+                                Icons.cancel,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+      ],
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:nyumba/models/rental.dart';
+import 'package:nyumba/providers/spesnow_provider.dart';
 import 'generated/l10n.dart';
 
 final List<String> imgList = [
@@ -12,13 +14,17 @@ final List<String> imgList = [
 ];
 
 class Property extends StatefulWidget {
-  const Property({super.key});
+  const Property({super.key, required this.id});
+
+  final int id;
 
   @override
   State<Property> createState() => _PropertyState();
 }
 
 class _PropertyState extends State<Property> {
+  late Future<Rental> futureRental;
+
   int _current = 0;
   final CarouselController _controller = CarouselController();
   final List<Widget> imageSliders = imgList
@@ -62,6 +68,12 @@ class _PropertyState extends State<Property> {
       .toList();
 
   @override
+  void initState() {
+    super.initState();
+    futureRental = SpesnowProvider().fetchRental("rentals/${widget.id}");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -89,545 +101,588 @@ class _PropertyState extends State<Property> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 250,
-              child: Column(children: [
-                Expanded(
-                  child: CarouselSlider(
-                    items: imageSliders,
-                    carouselController: _controller,
-                    options: CarouselOptions(
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                        aspectRatio: 2.0,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            _current = index;
-                          });
-                        }),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: imgList.asMap().entries.map((entry) {
-                    return GestureDetector(
-                      onTap: () => _controller.animateToPage(entry.key),
-                      child: Container(
-                        width: 12.0,
-                        height: 12.0,
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 4.0),
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color:
-                                (Theme.of(context).brightness == Brightness.dark
-                                        ? Colors.white
-                                        : Colors.black)
-                                    .withOpacity(
-                                        _current == entry.key ? 0.9 : 0.4)),
+        child: FutureBuilder<Rental>(
+          future: futureRental,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              // return Text(snapshot.data!.title);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 250,
+                    child: Column(children: [
+                      Expanded(
+                        child: CarouselSlider(
+                          items: imageSliders,
+                          carouselController: _controller,
+                          options: CarouselOptions(
+                              autoPlay: true,
+                              enlargeCenterPage: true,
+                              aspectRatio: 2.0,
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  _current = index;
+                                });
+                              }),
+                        ),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ]),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(30, 20, 30, 10),
-              child: SizedBox(
-                width: double.infinity,
-                child: Card(
-                  shape: const RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.brown),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: imgList.asMap().entries.map((entry) {
+                          return GestureDetector(
+                            onTap: () => _controller.animateToPage(entry.key),
+                            child: Container(
+                              width: 12.0,
+                              height: 12.0,
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 4.0),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: (Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.white
+                                          : Colors.black)
+                                      .withOpacity(
+                                          _current == entry.key ? 0.9 : 0.4)),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ]),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Apartment for rent in Kyaliwajala',
-                          style: TextStyle(fontSize: 16),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 20, 30, 10),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Card(
+                        shape: const RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.brown),
                         ),
-                        const Text(
-                          'Ush 800,000 per month',
-                          style: TextStyle(color: Colors.brown, fontSize: 16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                snapshot.data!.title,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              Text(
+                                "Ush ${snapshot.data!.price} per ${snapshot.data!.timeframe}",
+                                style: const TextStyle(
+                                    color: Colors.brown, fontSize: 16),
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_pin),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 5.0),
+                                    child: Text(
+                                        "${snapshot.data!.district}, ${snapshot.data!.country}"),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children:  [
+                                  const Icon(Icons.lock_clock),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 5.0),
+                                    child: Text(
+                                        "Updated ${snapshot.data!.updatedAt}"),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        Row(
-                          children: const [
-                            Icon(Icons.location_pin),
-                            Padding(
-                              padding: EdgeInsets.only(left: 5.0),
-                              child: Text('Kampala, Uganda'),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: const [
-                            Icon(Icons.lock_clock),
-                            Padding(
-                              padding: EdgeInsets.only(left: 5.0),
-                              child: Text('Updated 3 hours ago'),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: Card(
-                shape: const RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.brown),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        width: 70,
-                        height: 100,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                              image: AssetImage('images/profile.jpg'),
-                              fit: BoxFit.fill),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+                    child: Card(
+                      shape: const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.brown),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              width: 70,
+                              height: 100,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage('images/profile.jpg'),
+                                    fit: BoxFit.fill),
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                 Text(snapshot.data!.landlord),
+                                Row(
+                                  children: const [
+                                    Icon(Icons.verified, color: Colors.brown),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 5.0),
+                                      child: Text(
+                                        'Verified Landlord',
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: 143,
+                                  child: ElevatedButton(
+                                    onPressed: () {},
+                                    child: Text(S.of(context).connect),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Isaac Kyamagero'),
-                          Row(
-                            children: const [
-                              Icon(Icons.verified, color: Colors.brown),
-                              Padding(
-                                padding: EdgeInsets.only(left: 5.0),
-                                child: Text(
-                                  'Verified Landlord',
-                                  style: TextStyle(fontStyle: FontStyle.italic),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 143,
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              child: Text(S.of(context).connect),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: Card(
-                shape: const RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.brown),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Column(
-                            children: [
-                              const Text(
-                                '1',
-                                style: TextStyle(fontSize: 32),
-                              ),
-                              Row(
-                                children: const [
-                                  Icon(Icons.bed, color: Colors.brown),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 5.0),
-                                    child: Text('Bedroom'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              const Text(
-                                '3',
-                                style: TextStyle(fontSize: 32),
-                              ),
-                              Row(
-                                children: const [
-                                  Icon(Icons.bathtub_outlined,
-                                      color: Colors.brown),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 5.0),
-                                    child: Text('Bathrooms'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+                    child: Card(
+                      shape: const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.brown),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 30.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
                         child: Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Property Type',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text('Apartment'),
-                                ],
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Column(
+                                  children: [
+                                     Text(
+                                      (snapshot.data!.bedrooms).toString(),
+                                      style: const TextStyle(fontSize: 32),
+                                    ),
+                                    Row(
+                                      children: const [
+                                        Icon(Icons.bed, color: Colors.brown),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 5.0),
+                                          child: Text('Bed(s)'),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                     Text(
+                                      (snapshot.data!.bathrooms).toString(),
+                                      style: const TextStyle(fontSize: 32),
+                                    ),
+                                    Row(
+                                      children: const [
+                                        Icon(Icons.bathtub_outlined,
+                                            color: Colors.brown),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 5.0),
+                                          child: Text('Bath(s)'),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Pets',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                              padding: const EdgeInsets.only(top: 30.0),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [
+                                        const Text(
+                                          'Property Type',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(snapshot.data!.category),
+                                      ],
+                                    ),
                                   ),
-                                  Text('Allowed'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Smoking',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                   Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [
+                                        const Text(
+                                          'Property Size',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(snapshot.data!.size ?? '-'),
+                                      ],
+                                    ),
                                   ),
-                                  Text('Allowed'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Parties',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                   Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [
+                                        const Text(
+                                          'Kitchens',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text((snapshot.data!.kitchens).toString()),
+                                      ],
+                                    ),
                                   ),
-                                  Text('Not Allowed'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Parking',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [ 
+                                        const Text(
+                                          'Pets',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(snapshot.data!.pets == 1 ? 'Allowed' : 'Not Allowed',),
+                                      ],
+                                    ),
                                   ),
-                                  Text('Yes'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Furnished',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [
+                                        const Text(
+                                          'Smoking',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(snapshot.data!.smoking == 1 ? 'Allowed' : 'Not Allowed',),
+                                      ],
+                                    ),
                                   ),
-                                  Text('Yes'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Property Size',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [
+                                        const Text(
+                                          'Parties',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(snapshot.data!.parties == 1 ? 'Allowed' : 'Not Allowed',),
+                                      ],
+                                    ),
                                   ),
-                                  Text('500 sqft'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Year Built',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  // Padding(
+                                  //   padding: const EdgeInsets.all(8.0),
+                                  //   child: Row(
+                                  //     mainAxisAlignment:
+                                  //         MainAxisAlignment.spaceBetween,
+                                  //     children: const [
+                                  //       Text(
+                                  //         'Parking',
+                                  //         style: TextStyle(
+                                  //             fontWeight: FontWeight.bold),
+                                  //       ),
+                                  //       Text('Yes'),
+                                  //     ],
+                                  //   ),
+                                  // ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [
+                                        const Text(
+                                          'Furnished',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(snapshot.data!.furnished == 1 ? 'Yes' : 'No',),
+                                      ],
+                                    ),
                                   ),
-                                  Text('2004'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Last Renovation',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                 
+                                  // Padding(
+                                  //   padding: const EdgeInsets.all(8.0),
+                                  //   child: Row(
+                                  //     mainAxisAlignment:
+                                  //         MainAxisAlignment.spaceBetween,
+                                  //     children: const [
+                                  //       Text(
+                                  //         'Year Built',
+                                  //         style: TextStyle(
+                                  //             fontWeight: FontWeight.bold),
+                                  //       ),
+                                  //       Text('2004'),
+                                  //     ],
+                                  //   ),
+                                  // ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [
+                                        const Text(
+                                          'Newly Renovated',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(snapshot.data!.renovated == 1 ? 'Yes' : 'No',),
+                                      ],
+                                    ),
                                   ),
-                                  Text('2020'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Swimming Pool',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  // Padding(
+                                  //   padding: const EdgeInsets.all(8.0),
+                                  //   child: Row(
+                                  //     mainAxisAlignment:
+                                  //         MainAxisAlignment.spaceBetween,
+                                  //     children: const [
+                                  //       Text(
+                                  //         'Swimming Pool',
+                                  //         style: TextStyle(
+                                  //             fontWeight: FontWeight.bold),
+                                  //       ),
+                                  //       Text('No'),
+                                  //     ],
+                                  //   ),
+                                  // ),
+                                  // Padding(
+                                  //   padding: const EdgeInsets.all(8.0),
+                                  //   child: Row(
+                                  //     mainAxisAlignment:
+                                  //         MainAxisAlignment.spaceBetween,
+                                  //     children: const [
+                                  //       Text(
+                                  //         'Gym',
+                                  //         style: TextStyle(
+                                  //             fontWeight: FontWeight.bold),
+                                  //       ),
+                                  //       Text('No'),
+                                  //     ],
+                                  //   ),
+                                  // ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children:  [
+                                        const Text(
+                                          'Security Guard',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                       Text(snapshot.data!.guard == 1 ? 'Yes' : 'No',),
+                                      ],
+                                    ),
                                   ),
-                                  Text('No'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Gym',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text('No'),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Security',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text('Doorman'),
                                 ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: SizedBox(
-                width: double.infinity,
-                child: Card(
-                  shape: const RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.brown),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Center(
-                          child: Text(
-                            'NEARBY SCHOOLS',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columns: const [
-                              DataColumn(
-                                label: Text(
-                                  'Name',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  'Level',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  'Distance',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                            rows: const [
-                              DataRow(
-                                cells: [
-                                  DataCell(
-                                    Text('Entebbe Secondary School'),
-                                  ),
-                                  DataCell(
-                                    Text('Secondary'),
-                                  ),
-                                  DataCell(
-                                    Text('0.1 miles'),
-                                  ),
-                                ],
-                              ),
-                              DataRow(
-                                cells: [
-                                  DataCell(
-                                    Text('Rainbow Christian School'),
-                                  ),
-                                  DataCell(
-                                    Text('Primary'),
-                                  ),
-                                  DataCell(
-                                    Text('0.5 miles'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
                   ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: SizedBox(
-                width: double.infinity,
-                child: Card(
-                  shape: const RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.brown),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'COMMUTE',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text('Change destination'),
-                            ),
-                          ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Card(
+                        shape: const RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.brown),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                              'Destination: Entebbe International Airport'),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                children: const [
-                                  Icon(Icons.car_rental),
-                                  Text('12 min by car')
-                                ],
+                              const Center(
+                                child: Text(
+                                  'NEARBY SCHOOLS',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                               ),
-                              Column(
-                                children: const [
-                                  Icon(Icons.train),
-                                  Text('34 min by transit')
-                                ],
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  columns: const [
+                                    DataColumn(
+                                      label: Text(
+                                        'Name',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        'Level',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        'Distance',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                  rows: const [
+                                    DataRow(
+                                      cells: [
+                                        DataCell(
+                                          Text('Entebbe Secondary School'),
+                                        ),
+                                        DataCell(
+                                          Text('Secondary'),
+                                        ),
+                                        DataCell(
+                                          Text('0.1 miles'),
+                                        ),
+                                      ],
+                                    ),
+                                    DataRow(
+                                      cells: [
+                                        DataCell(
+                                          Text('Rainbow Christian School'),
+                                        ),
+                                        DataCell(
+                                          Text('Primary'),
+                                        ),
+                                        DataCell(
+                                          Text('0.5 miles'),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                children: const [
-                                  Icon(Icons.bike_scooter),
-                                  Text('22 min by bike')
-                                ],
-                              ),
-                              Column(
-                                children: const [
-                                  Icon(Icons.egg),
-                                  Text('1h 10m on foot')
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-          ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Card(
+                        shape: const RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.brown),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'COMMUTE',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: const Text('Change destination'),
+                                  ),
+                                ],
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                    'Destination: Entebbe International Airport'),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      children: const [
+                                        Icon(Icons.car_rental),
+                                        Text('12 min by car')
+                                      ],
+                                    ),
+                                    Column(
+                                      children: const [
+                                        Icon(Icons.train),
+                                        Text('34 min by transit')
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      children: const [
+                                        Icon(Icons.bike_scooter),
+                                        Text('22 min by bike')
+                                      ],
+                                    ),
+                                    Column(
+                                      children: const [
+                                        Icon(Icons.egg),
+                                        Text('1h 10m on foot')
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text('${snapshot.error}');
+            }
+
+            // By default, show a loading spinner.
+            return const Center(
+                child: Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: CircularProgressIndicator(),
+            ));
+          },
         ),
       ),
     );
