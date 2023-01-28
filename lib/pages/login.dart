@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nyumba/account.dart';
+import 'package:nyumba/favorite.dart';
 import 'package:nyumba/providers/spesnow_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  const Login({super.key, required this.page});
+
+  final String page;
 
   @override
   State<Login> createState() => _LoginState();
@@ -17,6 +19,14 @@ class _LoginState extends State<Login> {
 
   bool _isLoggedIn = false;
 
+  String _page = "check";
+
+  @override
+  void initState() {
+    _page = widget.page;
+    super.initState();
+  }
+
   @override
   void dispose() {
     emailController.dispose();
@@ -27,7 +37,12 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     if (_isLoggedIn) {
-      return const Account();
+      if (_page == "favorite") {
+        return const Favorite();
+      } else if (_page == "account") {
+        return const Account();
+      }
+      return const Center(child: CircularProgressIndicator());
     }
     return Scaffold(
       appBar: AppBar(

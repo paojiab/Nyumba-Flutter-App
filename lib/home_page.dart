@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:nyumba/models/category.dart' as my;
 import 'package:nyumba/models/rental.dart';
+import 'package:nyumba/notification.dart';
 import 'package:nyumba/property.dart';
 import 'package:nyumba/result.dart';
 import 'package:nyumba/search.dart';
@@ -8,12 +11,13 @@ import 'generated/l10n.dart';
 import 'package:http/http.dart' as http;
 import 'package:nyumba/providers/spesnow_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'providers/location.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
   });
-
+  
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -22,25 +26,51 @@ class _HomePageState extends State<HomePage> {
   final searchController = TextEditingController();
 
   @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
+  void initState() {
+    _getLocation();
+    super.initState();
+  }
+
+  _getLocation() async {
+    await getLocation();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: false,
-        title: const Text(
-          'NYUMBA',
-          style: TextStyle(color: Colors.brown),
+        backgroundColor: Colors.brown,
+        title: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Center(
+            child: TextField(
+              showCursor: false,
+              onTap: () {
+                Navigator.pushNamed(context, '/search');
+              },
+              decoration: const InputDecoration(
+                hintText: 'Search for a rental in ...',
+                prefixIcon: Icon(Icons.search),
+              ),
+            ),
+          ),
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.help),
-            color: Colors.brown,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Notify(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.notifications),
+            color: Colors.white,
           ),
         ],
       ),
@@ -49,72 +79,11 @@ class _HomePageState extends State<HomePage> {
           width: double.infinity,
           child: Column(
             children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(10, 25.0, 10, 25.0),
-                color: Colors.brown,
-                child: Column(
-                  children: [
-                    const Text(
-                      'Zero Brokers!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 32),
-                    ),
-                    const Text(
-                      'Rentals from verified Landlords',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 20, 8, 15),
-                      child: SizedBox(
-                        height: 50,
-                        child: TextField(
-                          controller: searchController,
-                          style: const TextStyle(color: Colors.black),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            // border: OutlineInputBorder(),
-                            hintText: S.of(context).location,
-                            hintStyle: const TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 36,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  Search(search: searchController.text),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          S.of(context).search,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               FutureBuilder<List<my.Category>>(
                 future: SpesnowProvider().fetchCategories(http.Client()),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
+                    print(snapshot.error);
                     return const Center(
                       child: Text('An error has occurred!'),
                     );
@@ -133,24 +102,31 @@ class _HomePageState extends State<HomePage> {
                     return const Padding(
                       padding: EdgeInsets.only(top: 20.0),
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: LinearProgressIndicator(),
                       ),
                     );
                   }
                 },
               ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
-                child: Text(
-                  'LATEST RENTALS',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              Container(
+                color: Colors.brown,
+                height: 50,
+                width: double.infinity,
+                child: const Center(
+                  child: Text(
+                    'Latest Rentals',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 18),
+                  ),
                 ),
               ),
               FutureBuilder<List<Rental>>(
                 future: SpesnowProvider().fetchLatestRentals(http.Client()),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    // print(snapshot.error);
+                    print(snapshot.error);
                     return const Center(
                       child: Text('An error has occurred!'),
                     );
@@ -163,8 +139,11 @@ class _HomePageState extends State<HomePage> {
                       return RentalsList(rentals: snapshot.data!);
                     }
                   } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     );
                   }
                 },
@@ -184,13 +163,11 @@ class CategoriesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-      child: GridView.builder(
+    return SizedBox(
+      height: 120,
+      child: ListView.builder(
         shrinkWrap: true,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-        ),
+        scrollDirection: Axis.horizontal,
         itemCount: categories.length,
         itemBuilder: (context, index) {
           return GestureDetector(
@@ -204,10 +181,15 @@ class CategoriesList extends StatelessWidget {
             },
             child: Column(
               children: [
-                Image.asset(
-                  'images/apartment.png',
-                  width: 130,
-                  height: 100,
+                // Image.asset(
+                //   'images/apartment.jpg',
+                //   width: 90,
+                //   height: 80,
+                // ),
+                const Image(
+                  image: AssetImage('images/apartment.png'),
+                  width: 90,
+                  height: 80,
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
@@ -276,8 +258,8 @@ class _FavoriteButtonState extends State<FavoriteButton> {
             setState(() {
               _isFavorited = false;
             });
-             const snackBar = SnackBar(
-              content: Text('Rental removed from favorites'),
+            const snackBar = SnackBar(
+              content: Text('Rental has been unsaved'),
             );
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           } else if (!_isFavorited) {
@@ -286,15 +268,23 @@ class _FavoriteButtonState extends State<FavoriteButton> {
               _isFavorited = true;
             });
             const snackBar = SnackBar(
-              content: Text('Rental added to favorites'),
+              content: Text('Rental has been saved'),
               backgroundColor: Colors.green,
             );
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           }
+        } else {
+          const snackBar = SnackBar(
+            content: Text('You must first login'),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       },
       icon: _isFavorited
-          ? const Icon(Icons.favorite, color: Colors.brown)
+          ? const Icon(
+              Icons.favorite,
+              color: Colors.brown,
+            )
           : const Icon(Icons.favorite_outline, color: Colors.brown),
     );
   }
@@ -316,7 +306,7 @@ class _RentalsListState extends State<RentalsList> {
         itemCount: widget.rentals.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.fromLTRB(18.0, 18, 18, 0),
             child: GestureDetector(
               onTap: () => Navigator.push(
                 context,
@@ -324,96 +314,77 @@ class _RentalsListState extends State<RentalsList> {
                   builder: (context) => Property(id: widget.rentals[index].id),
                 ),
               ),
-              child: Card(
-                elevation: 0,
-                color: Colors.brown,
-                child: SizedBox(
-                  width: 300,
-                  height: 220,
-                  child: Stack(children: [
-                    Column(
-                      children: [
-                        Image.asset(
-                          'images/hero-img.jpg',
-                          fit: BoxFit.fill,
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: const Image(
+                          image: AssetImage("images/hero-img.jpg"),
+                          fit: BoxFit.cover,
+                          height: 270,
                           width: double.infinity,
-                          height: 170,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    (widget.rentals[index].bedrooms).toString(),
-                                    style: const TextStyle(
-                                        fontSize: 22, color: Colors.white),
-                                  ),
-                                  const Icon(Icons.bed, color: Colors.white),
-                                ],
-                              ),
-                              Text(
-                                widget.rentals[index].district,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    (widget.rentals[index].bathrooms)
-                                        .toString(),
-                                    style: const TextStyle(
-                                        fontSize: 22, color: Colors.white),
-                                  ),
-                                  const Icon(
-                                    Icons.bathtub_outlined,
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              ),
-                            ],
+                      ),
+                      Positioned(
+                        right: 5,
+                        child:
+                            FavoriteButton(rentalId: widget.rentals[index].id),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 100,
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "${widget.rentals[index].district}, ${widget.rentals[index].category}",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Row(
+                              children: [
+                                Text(widget.rentals[index].rating),
+                                const Icon(Icons.star, size: 16),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Text(
+                          "${widget.rentals[index].bedrooms} bedrooms",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 124, 123, 123),
                           ),
+                        ),
+                        Text(
+                          "${widget.rentals[index].bathrooms} bathrooms",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 124, 123, 123),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "UGX ${widget.rentals[index].price}",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 4.0),
+                              child: Text('per month'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    Positioned(
-                      top: 10,
-                      left: 5,
-                      child: Column(children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: Row(
-                            children: const [
-                              Icon(
-                                Icons.verified,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                'Verified',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontStyle: FontStyle.italic),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ]),
-                    ),
-                    Positioned(
-                      top: 15,
-                      right: 10,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                            backgroundColor: Colors.white),
-                        onPressed: () async {},
-                        child: FavoriteButton(
-                          rentalId: widget.rentals[index].id,
-                        ),
-                      ),
-                    ),
-                  ]),
-                ),
+                  ),
+                ],
               ),
             ),
           );

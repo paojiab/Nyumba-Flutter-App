@@ -1,4 +1,3 @@
-
 class Rental {
   final int id;
   final String title;
@@ -6,7 +5,7 @@ class Rental {
   final int bedrooms;
   final int bathrooms;
   final int kitchens;
-  final int price;
+  final String price;
   final String timeframe;
   final int promoted;
   final String village;
@@ -25,6 +24,8 @@ class Rental {
   final String? size;
   final String landlord;
   final String? landlordPhoto;
+  final String landlordTel;
+  final String rating;
 
   const Rental({
     required this.id,
@@ -51,7 +52,9 @@ class Rental {
     required this.guard,
     required this.size,
     required this.landlord,
-     required this.landlordPhoto,
+    required this.landlordPhoto,
+    required this.landlordTel,
+     required this.rating,
   });
 
   factory Rental.fromJson(Map<String, dynamic> json) {
@@ -81,6 +84,8 @@ class Rental {
       size: json['size'],
       landlord: json['landlord'],
       landlordPhoto: json['landlordPhoto'],
+      landlordTel: json['landlordTel'],
+      rating: json['rating'],
     );
   }
 }

@@ -16,7 +16,7 @@ class Favorite extends StatefulWidget {
 }
 
 class _FavoriteState extends State<Favorite> {
-  bool _isLoggedIn = true;
+  String _isLoggedIn = "check";
   @override
   void initState() {
     _check();
@@ -28,21 +28,30 @@ class _FavoriteState extends State<Favorite> {
     final String? token = prefs.getString('token');
     if (token == null) {
       setState(() {
-        _isLoggedIn = false;
+        _isLoggedIn = "false";
+      });
+    } else {
+      setState(() {
+        _isLoggedIn = "true";
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLoggedIn) {
-      return const Login();
+    if (_isLoggedIn == "false") {
+      return const Login(page: "favorite");
+    } else if (_isLoggedIn == "check") {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
     }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown,
+        centerTitle: true,
         title: Text(
-          S.of(context).favorites.toUpperCase(),
+          S.of(context).favorites,
           style: const TextStyle(color: Colors.white),
         ),
         actions: [

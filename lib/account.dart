@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nyumba/LanguageChangeProvider.dart';
 import 'package:nyumba/notification.dart';
 import 'package:nyumba/pages/login.dart';
+import 'package:nyumba/pages/preferences.dart';
 import 'package:nyumba/providers/spesnow_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'generated/l10n.dart';
 
@@ -15,8 +14,7 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-  
-  bool _isLoggedIn = true;
+  String _isLoggedIn = "check";
   @override
   void initState() {
     _check();
@@ -28,21 +26,31 @@ class _AccountState extends State<Account> {
     final String? token = prefs.getString('token');
     if (token == null) {
       setState(() {
-        _isLoggedIn = false;
+        _isLoggedIn = "false";
+      });
+    } else {
+      setState(() {
+        _isLoggedIn = "true";
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLoggedIn) {
-      return const Login();
+    if (_isLoggedIn == "false") {
+      return const Login(page: "account");
+    }
+    else if (_isLoggedIn == "check") {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
     }
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.brown,
         title: Text(
-          S.of(context).account.toUpperCase(),
+          S.of(context).account,
           style: const TextStyle(color: Colors.white),
         ),
         actions: [
@@ -53,87 +61,95 @@ class _AccountState extends State<Account> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Notify(),
-                  ),
-                );
-              },
-              child: Card(
-                child: ListTile(
-                  title: Text(S.of(context).notifications),
-                  leading: const Icon(Icons.notifications),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(8.0, 25, 8, 8),
+              child: SizedBox(
+                width: 100,
+                height: 100,
+                child: CircleAvatar(
+                  // backgroundImage: AssetImage('images/profile.jpg'),
+                  backgroundColor: Colors.brown,
+                  child: Text('OPB'),
                 ),
               ),
             ),
-            Card(
-              child: ListTile(
-                title: Text(S.of(context).customOrder),
-                leading: const Icon(Icons.forward),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                title: Text(S.of(context).becomeALandlord),
-                leading: const Icon(Icons.toggle_off),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                title: Text(S.of(context).settings),
-                leading: const Icon(Icons.settings),
-              ),
-            ),
-            GestureDetector(
-              onTap: (() async {
-                final prefs = await SharedPreferences.getInstance();
-                final String? token = prefs.getString('token');
-                await SpesnowProvider().logout(token!);
-                setState(() {
-                  _isLoggedIn = false;
-                });
-              }),
-              child: Card(
-                child: ListTile(
-                  title: Text(
-                    S.of(context).logout,
-                    style: const TextStyle(color: Colors.brown),
-                  ),
-                  leading: const Icon(
-                    Icons.logout,
-                    color: Colors.brown,
-                  ),
-                ),
-              ),
-            ),
+            const Text('Ojiambo Paul Barasa',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             Padding(
-              padding: const EdgeInsets.only(top: 40.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              padding: const EdgeInsets.fromLTRB(8.0, 20, 8, 8),
+              child: ListView(
+                shrinkWrap: true,
                 children: [
-                  TextButton(
-                    onPressed: () {
-                      context.read<LanguageChangeProvider>().changeLocale("en");
+                  const ListTile(
+                    title: Text('Personal Data'),
+                    leading: Icon(Icons.person),
+                    iconColor: Colors.brown,
+                    trailing: Icon(Icons.arrow_forward_ios),
+                  ),
+                  const ListTile(
+                    title: Text('Subscription'),
+                    leading: Icon(Icons.subscriptions),
+                    iconColor: Colors.brown,
+                    trailing: Icon(Icons.arrow_forward_ios),
+                  ),
+                  const ListTile(
+                    title: Text('My rentals'),
+                    leading: Icon(Icons.house),
+                    iconColor: Colors.brown,
+                    trailing: Icon(Icons.arrow_forward_ios),
+                  ),
+                  const ListTile(
+                    title: Text('Tours'),
+                    leading: Icon(Icons.map),
+                    iconColor: Colors.brown,
+                    trailing: Icon(Icons.arrow_forward_ios),
+                  ),
+                  const ListTile(
+                    title: Text('Reviews'),
+                    leading: Icon(Icons.rate_review),
+                    iconColor: Colors.brown,
+                    trailing: Icon(Icons.arrow_forward_ios),
+                  ),
+                  const ListTile(
+                    title: Text('Order'),
+                    leading: Icon(Icons.store),
+                    iconColor: Colors.brown,
+                    trailing: Icon(Icons.arrow_forward_ios),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Preferences(),
+                        ),
+                      );
                     },
-                    child: const Text(
-                      'ENGLISH',
-                      style: TextStyle(color: Colors.black),
+                    child: const ListTile(
+                      title: Text('Preferences'),
+                      leading: Icon(Icons.settings),
+                      iconColor: Colors.brown,
+                      trailing: Icon(Icons.arrow_forward_ios),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      context.read<LanguageChangeProvider>().changeLocale("sw");
-                    },
-                    child: const Text(
-                      'SWAHILI',
-                      style: TextStyle(color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      height: 40,
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final prefs = await SharedPreferences.getInstance();
+                          final String? token = prefs.getString('token');
+                          await SpesnowProvider().logout(token!);
+                          setState(() {
+                            _isLoggedIn = "false";
+                          });
+                        },
+                        child: const Text('Sign Out'),
+                      ),
                     ),
                   ),
                 ],

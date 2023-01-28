@@ -43,6 +43,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "save": MessageLookupByLibrary.simpleMessage("Hifadhi"),
         "search": MessageLookupByLibrary.simpleMessage("Tafuta"),
         "settings": MessageLookupByLibrary.simpleMessage("Mipangilio"),
+        "unlock": MessageLookupByLibrary.simpleMessage("Kufungua"),
         "wallet": MessageLookupByLibrary.simpleMessage("Pochi")
       };
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nyumba/models/rental.dart';
+import 'package:nyumba/pages/subscribe.dart';
 import 'package:nyumba/providers/spesnow_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'generated/l10n.dart';
 
 final List<String> imgList = [
@@ -24,6 +26,10 @@ class Property extends StatefulWidget {
 
 class _PropertyState extends State<Property> {
   late Future<Rental> futureRental;
+
+  bool _subscribed = false;
+  bool _isFavorited = false;
+  bool _isLoggedIn = false;
 
   int _current = 0;
   final CarouselController _controller = CarouselController();
@@ -71,6 +77,37 @@ class _PropertyState extends State<Property> {
   void initState() {
     super.initState();
     futureRental = SpesnowProvider().fetchRental("rentals/${widget.id}");
+    _subscriptionCheck();
+    _checkFavorite();
+    _checkLogin();
+  }
+
+  _subscriptionCheck() async {
+    final response = await SpesnowProvider().subscriptionCheck();
+    if (response) {
+      _subscribed = true;
+    }
+  }
+
+  _checkFavorite() async {
+    var response = await SpesnowProvider().checkFavorite(widget.id);
+    if (response) {
+      if (mounted) {
+        setState(() {
+          _isFavorited = true;
+        });
+      }
+    }
+  }
+
+  _checkLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('token');
+    if (token != null) {
+      setState(() {
+        _isLoggedIn = true;
+      });
+    }
   }
 
   @override
@@ -84,14 +121,38 @@ class _PropertyState extends State<Property> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.favorite_outline),
-            color: Colors.white,
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.share),
-            color: Colors.white,
+            onPressed: () async {
+              if (_isLoggedIn) {
+                if (_isFavorited) {
+                  await SpesnowProvider().removeFavorite(widget.id);
+                  setState(() {
+                    _isFavorited = false;
+                  });
+                  const snackBar = SnackBar(
+                    content: Text('Rental removed from favorites'),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                } else if (!_isFavorited) {
+                  await SpesnowProvider().addFavorite(widget.id);
+                  setState(() {
+                    _isFavorited = true;
+                  });
+                  const snackBar = SnackBar(
+                    content: Text('Rental added to favorites'),
+                    backgroundColor: Colors.green,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
+              } else {
+               const snackBar = SnackBar(
+                    content: Text('You must login first'),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              }
+            },
+            icon: _isFavorited
+                ? const Icon(Icons.favorite, color: Colors.white)
+                : const Icon(Icons.favorite_outline, color: Colors.white),
           ),
           IconButton(
             onPressed: () {},
@@ -184,7 +245,7 @@ class _PropertyState extends State<Property> {
                                 ],
                               ),
                               Row(
-                                children:  [
+                                children: [
                                   const Icon(Icons.lock_clock),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 5.0),
@@ -223,7 +284,7 @@ class _PropertyState extends State<Property> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                 Text(snapshot.data!.landlord),
+                                Text(snapshot.data!.landlord),
                                 Row(
                                   children: const [
                                     Icon(Icons.verified, color: Colors.brown),
@@ -238,10 +299,28 @@ class _PropertyState extends State<Property> {
                                   ],
                                 ),
                                 SizedBox(
-                                  width: 143,
+                                  width: 167,
                                   child: ElevatedButton(
-                                    onPressed: () {},
-                                    child: Text(S.of(context).connect),
+                                    onPressed: () {
+                                      if (!_subscribed) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const Subscribe()),
+                                        );
+                                      }
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        const Icon(Icons.phone),
+                                        Text(_subscribed
+                                            ? snapshot.data!.landlordTel
+                                            : S.of(context).unlock),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -266,7 +345,7 @@ class _PropertyState extends State<Property> {
                               children: [
                                 Column(
                                   children: [
-                                     Text(
+                                    Text(
                                       (snapshot.data!.bedrooms).toString(),
                                       style: const TextStyle(fontSize: 32),
                                     ),
@@ -283,7 +362,7 @@ class _PropertyState extends State<Property> {
                                 ),
                                 Column(
                                   children: [
-                                     Text(
+                                    Text(
                                       (snapshot.data!.bathrooms).toString(),
                                       style: const TextStyle(fontSize: 32),
                                     ),
@@ -310,7 +389,7 @@ class _PropertyState extends State<Property> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [
+                                      children: [
                                         const Text(
                                           'Property Type',
                                           style: TextStyle(
@@ -320,12 +399,12 @@ class _PropertyState extends State<Property> {
                                       ],
                                     ),
                                   ),
-                                   Padding(
+                                  Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [
+                                      children: [
                                         const Text(
                                           'Property Size',
                                           style: TextStyle(
@@ -335,18 +414,19 @@ class _PropertyState extends State<Property> {
                                       ],
                                     ),
                                   ),
-                                   Padding(
+                                  Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [
+                                      children: [
                                         const Text(
                                           'Kitchens',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Text((snapshot.data!.kitchens).toString()),
+                                        Text((snapshot.data!.kitchens)
+                                            .toString()),
                                       ],
                                     ),
                                   ),
@@ -355,13 +435,17 @@ class _PropertyState extends State<Property> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [ 
+                                      children: [
                                         const Text(
                                           'Pets',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Text(snapshot.data!.pets == 1 ? 'Allowed' : 'Not Allowed',),
+                                        Text(
+                                          snapshot.data!.pets == 1
+                                              ? 'Allowed'
+                                              : 'Not Allowed',
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -370,13 +454,17 @@ class _PropertyState extends State<Property> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [
+                                      children: [
                                         const Text(
                                           'Smoking',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Text(snapshot.data!.smoking == 1 ? 'Allowed' : 'Not Allowed',),
+                                        Text(
+                                          snapshot.data!.smoking == 1
+                                              ? 'Allowed'
+                                              : 'Not Allowed',
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -385,13 +473,17 @@ class _PropertyState extends State<Property> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [
+                                      children: [
                                         const Text(
                                           'Parties',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Text(snapshot.data!.parties == 1 ? 'Allowed' : 'Not Allowed',),
+                                        Text(
+                                          snapshot.data!.parties == 1
+                                              ? 'Allowed'
+                                              : 'Not Allowed',
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -415,17 +507,21 @@ class _PropertyState extends State<Property> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [
+                                      children: [
                                         const Text(
                                           'Furnished',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Text(snapshot.data!.furnished == 1 ? 'Yes' : 'No',),
+                                        Text(
+                                          snapshot.data!.furnished == 1
+                                              ? 'Yes'
+                                              : 'No',
+                                        ),
                                       ],
                                     ),
                                   ),
-                                 
+
                                   // Padding(
                                   //   padding: const EdgeInsets.all(8.0),
                                   //   child: Row(
@@ -446,13 +542,17 @@ class _PropertyState extends State<Property> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [
+                                      children: [
                                         const Text(
                                           'Newly Renovated',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Text(snapshot.data!.renovated == 1 ? 'Yes' : 'No',),
+                                        Text(
+                                          snapshot.data!.renovated == 1
+                                              ? 'Yes'
+                                              : 'No',
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -491,13 +591,17 @@ class _PropertyState extends State<Property> {
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children:  [
+                                      children: [
                                         const Text(
                                           'Security Guard',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
-                                       Text(snapshot.data!.guard == 1 ? 'Yes' : 'No',),
+                                        Text(
+                                          snapshot.data!.guard == 1
+                                              ? 'Yes'
+                                              : 'No',
+                                        ),
                                       ],
                                     ),
                                   ),

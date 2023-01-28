@@ -43,6 +43,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "save": MessageLookupByLibrary.simpleMessage("Save"),
         "search": MessageLookupByLibrary.simpleMessage("Search"),
         "settings": MessageLookupByLibrary.simpleMessage("Settings"),
+        "unlock": MessageLookupByLibrary.simpleMessage("Unlock"),
         "wallet": MessageLookupByLibrary.simpleMessage("Wallet")
       };
 }

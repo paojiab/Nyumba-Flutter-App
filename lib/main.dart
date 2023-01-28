@@ -2,6 +2,9 @@ import 'package:nyumba/LanguageChangeProvider.dart';
 import 'package:nyumba/account.dart';
 import 'package:nyumba/favorite.dart';
 import 'package:nyumba/home_page.dart';
+import 'package:nyumba/pages/login.dart';
+import 'package:nyumba/pages/scout.dart';
+import 'package:nyumba/pages/search.dart';
 import 'package:nyumba/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -37,6 +40,10 @@ class MyApp extends StatelessWidget {
             appBarTheme: const AppBarTheme(color: Colors.white),
           ),
           home: const RootPage(),
+          routes: {
+            '/account': (context) => const Account(),
+            '/search': (context) => const SearchPage(),
+          },
         );
       }),
     );
@@ -52,33 +59,40 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
   int _selectedIndex = 0;
+ 
   List<Widget> pages = const [
     HomePage(),
     Favorite(),
+    ScoutPage(),
     Wallet(),
     Account(),
   ];
+
+  void _onTappedItem(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: pages[_selectedIndex],
-      bottomNavigationBar: NavigationBar(
-        destinations: [
-          NavigationDestination(
-              icon: const Icon(Icons.home), label: S.of(context).home),
-          NavigationDestination(
-              icon: const Icon(Icons.favorite), label: S.of(context).favorites),
-          NavigationDestination(
-              icon: const Icon(Icons.wallet), label: S.of(context).wallet),
-          NavigationDestination(
-              icon: const Icon(Icons.person), label: S.of(context).account),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Saved'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_searching),
+            label: 'Scout',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: 'Wallet'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
         ],
-        onDestinationSelected: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        selectedIndex: _selectedIndex,
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.brown,
+        unselectedItemColor: Colors.black,
+        onTap: _onTappedItem,
       ),
     );
   }

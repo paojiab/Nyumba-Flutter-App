@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SpesnowProvider {
   final String _baseUrl = 'http://127.0.0.1:8000/api/v1/';
+  // final String _baseUrl = "http://10.0.2.2:8000/api/v1/";
   // final String _imgUrl='http://mark.dbestech.com/uploads/';
   // getImage(){
   //   return _imgUrl;
@@ -106,11 +107,13 @@ class SpesnowProvider {
       print(data);
       final token = data['token'];
       final id = data['id'];
+      final name = data['name'];
 
       // Store the token
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('token', token);
       prefs.setString('email', email);
+      prefs.setString('name', name);
       prefs.setInt('user_id', id);
     } else {
       throw Exception('Failed to login');
@@ -135,6 +138,7 @@ class SpesnowProvider {
       print('Logged out');
       return true;
     } else {
+      print(response.statusCode);
       throw Exception('Failed to logout');
     }
   }
@@ -154,6 +158,26 @@ class SpesnowProvider {
     if (response.statusCode == 200) {
       return true;
     } else {
+      return false;
+    }
+  }
+
+  Future<bool> subscriptionCheck() async {
+    final url = Uri.parse("${_baseUrl}users/subscription/check");
+
+    final prefs = await SharedPreferences.getInstance();
+
+    final String? token = prefs.getString('token');
+
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    if (response.statusCode == 200) {
+      print("true");
+      return true;
+    } else {
+      print(response.statusCode);
       return false;
     }
   }

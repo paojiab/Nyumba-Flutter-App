@@ -19,5 +19,6 @@
     "price":"Price",
     "search":"Search",
     "property":"Property",
-    "connect":"Connect"
+    "connect":"Connect",
+    "unlock": "Unlock"
 }
