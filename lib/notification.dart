@@ -9,8 +9,16 @@ class Notify extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
+        centerTitle: true,
         title: Text(
-          S.of(context).notifications.toUpperCase(),
+          S.of(context).notifications,
           style: const TextStyle(color: Colors.white),
         ),
         actions: [
@@ -21,115 +29,8 @@ class Notify extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
-          child: Column(
-            children: [
-              SizedBox(
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(S.of(context).notifications + " (2)"),
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: Text(S.of(context).clearAll),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  child: Card(
-                    shape: const RoundedRectangleBorder(
-                      side: BorderSide(color: Colors.brown),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Image.asset(
-                            'images/hero-img.jpg',
-                            width: 100,
-                            height: 100,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text('Check these out!'),
-                              Text(
-                                '2 days ago',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Icon(
-                              Icons.cancel,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  child: Card(
-                    shape: const RoundedRectangleBorder(
-                      side: BorderSide(color: Colors.brown),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Image.asset(
-                            'images/hero-img.jpg',
-                            width: 100,
-                            height: 100,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text('Check these out!'),
-                              Text(
-                                '8 days ago!',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Icon(
-                              Icons.cancel,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      body: const Center(
+        child: Text("No notifications yet"),
       ),
     );
   }

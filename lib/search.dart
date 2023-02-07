@@ -6,7 +6,7 @@ import 'generated/l10n.dart';
 import 'providers/spesnow_provider.dart';
 import 'package:http/http.dart' as http;
 
-const List<String> sort = <String>['Default', 'Lowest price', 'Highest price'];
+const List<String> sort = <String>['Relevant', 'Lowest price', 'Highest price'];
 
 class Search extends StatefulWidget {
   const Search({super.key, required this.search});
@@ -26,21 +26,21 @@ class _SearchState extends State<Search> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown,
-        title: Text(
-          S.of(context).results,
-          style: const TextStyle(color: Colors.white),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
         ),
+        centerTitle: true,
+        title: Text(widget.search),
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: ((context) => const Filter()),
-                ),
-              );
+              Navigator.pushNamed(context, '/search');
             },
-            icon: const Icon(Icons.filter_alt),
+            icon: const Icon(Icons.search),
             color: Colors.white,
           ),
           IconButton(
@@ -53,46 +53,73 @@ class _SearchState extends State<Search> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 15.0),
-              child: Container(
-                alignment: Alignment.centerRight,
-                child: DropdownButton<String>(
-                  value: dropdownValue,
-                  icon: const Icon(Icons.swap_vert),
-                  elevation: 16,
-                  style: const TextStyle(color: Colors.brown),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.brown,
-                  ),
-                  onChanged: (String? value) {
-                    // This is called when the user selects an item.
-                    if (value == "Lowest price") {
-                      setState(() {
-                        dropdownValue = value!;
-                        _sorted = "lp";
-                      });
-                    } else if (value == "Highest price") {
-                      setState(() {
-                        dropdownValue = value!;
-                        _sorted = "hp";
-                      });
-                    } else {
-                       setState(() {
-                        dropdownValue = value!;
-                        _sorted = "no";
-                      });
-                    }
-                  },
-                  items: sort.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
+            Container(
+              color: Colors.brown,
+              width: double.infinity,
+              height: kToolbarHeight,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.view_module,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(canvasColor: Colors.brown),
+                        child: DropdownButton<String>(
+                          value: dropdownValue,
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.white,
+                          ),
+                          elevation: 16,
+                          style: const TextStyle(color: Colors.white),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.white,
+                          ),
+                          onChanged: (String? value) {
+                            // This is called when the user selects an item.
+                            if (value == "Lowest price") {
+                              setState(() {
+                                dropdownValue = value!;
+                                _sorted = "lp";
+                              });
+                            } else if (value == "Highest price") {
+                              setState(() {
+                                dropdownValue = value!;
+                                _sorted = "hp";
+                              });
+                            } else {
+                              setState(() {
+                                dropdownValue = value!;
+                                _sorted = "no";
+                              });
+                            }
+                          },
+                          items: sort
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'FILTERS',
+                          style: TextStyle(color: Colors.white),
+                        )),
+                  ]),
             ),
             if (_sorted == "no") ...[
               Padding(
@@ -129,7 +156,7 @@ class _SearchState extends State<Search> {
                     const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
                 child: FutureBuilder<List<Rental>>(
                   future: SpesnowProvider()
-                      .fetchSortedRentals(http.Client(), "+price"),
+                      .fetchSortedRentals(http.Client(), widget.search, "asc"),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       // print(snapshot.error);
@@ -153,12 +180,12 @@ class _SearchState extends State<Search> {
                 ),
               ),
             ] else if (_sorted == "hp") ...[
-               Padding(
+              Padding(
                 padding:
                     const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
                 child: FutureBuilder<List<Rental>>(
                   future: SpesnowProvider()
-                      .fetchSortedRentals(http.Client(), "-price"),
+                      .fetchSortedRentals(http.Client(), widget.search, "desc"),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       // print(snapshot.error);
@@ -189,129 +216,123 @@ class _SearchState extends State<Search> {
   }
 }
 
-class RentalsList extends StatelessWidget {
+class RentalsList extends StatefulWidget {
   const RentalsList({super.key, required this.rentals});
 
   final List<Rental> rentals;
 
   @override
+  State<RentalsList> createState() => _RentalsListState();
+}
+
+class _RentalsListState extends State<RentalsList> {
+  @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        shrinkWrap: true,
-        itemCount: rentals.length,
-        itemBuilder: (context, index) {
-          if (rentals[index].promoted == 0) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => Property(id: rentals[index].id)),
-                ),
-                child: SizedBox(
-                  child: Card(
-                    shape: const RoundedRectangleBorder(
-                      side: BorderSide(color: Colors.black),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
+    return Column(
+      children: [
+        ListView.builder(
+            shrinkWrap: true,
+            itemCount: widget.rentals.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Property(
+                              id: widget.rentals[index].id,
+                            )),
+                  ),
+                  child: Stack(
+                    children: [
+                      Row(
                         children: [
-                          Image.asset(
-                            'images/hero-img.jpg',
-                            width: 100,
-                            height: 100,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: const Image(
+                              image: AssetImage('images/hero-img.jpg'),
+                              height: 60,
+                              width: 70,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 20.0),
+                            padding: const EdgeInsets.fromLTRB(12.0,8,8,8),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(rentals[index].title),
                                 Text(
-                                  'Ush ${rentals[index].price}',
-                                  style: const TextStyle(
-                                      color: Colors.brown,
-                                      fontWeight: FontWeight.bold),
+                                  "${widget.rentals[index].district}, ${widget.rentals[index].category}",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                Row(children: [
-                                  const Icon(Icons.location_pin),
-                                  Text(rentals[index].district),
-                                ]),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 20.0),
+                                      child: Row(
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.only(right: 4.0),
+                                            child: Icon(
+                                              Icons.bathtub_outlined,
+                                              color: Color.fromARGB(
+                                                  255, 124, 123, 123),
+                                            ),
+                                          ),
+                                          Text(
+                                            (widget.rentals[index].bathrooms)
+                                                .toString(),
+                                            style: const TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 124, 123, 123),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.only(right: 4.0),
+                                          child: Icon(
+                                            Icons.bed,
+                                            color: Color.fromARGB(
+                                                255, 124, 123, 123),
+                                          ),
+                                        ),
+                                        Text(
+                                          (widget.rentals[index].bedrooms)
+                                              .toString(),
+                                          style: const TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 124, 123, 123),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Text("UGX ${widget.rentals[index].price} per month"),
                               ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }
-          return GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Property(id: rentals[index].id)),
-            ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    child: Card(
-                      shape: const RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.brown),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'images/hero-img.jpg',
-                              width: 100,
-                              height: 100,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(rentals[index].title),
-                                  Text(
-                                    'Ush ${rentals[index].price}',
-                                    style: const TextStyle(
-                                        color: Colors.brown,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.location_pin),
-                                      Text(rentals[index].district),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                      Positioned(
+                        right: 0,
+                        child: IconButton(
+                          onPressed: () async {
+                          },
+                          icon: const Icon(Icons.favorite_border),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-                Positioned(
-                  left: 10,
-                  bottom: 10,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text('PROMOTED'),
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
+              );
+            }),
+      ],
+    );
   }
 }

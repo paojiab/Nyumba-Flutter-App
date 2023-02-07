@@ -43,7 +43,5 @@ Future<Position> getLocation() async {
   Position position = await Geolocator.getCurrentPosition();
   String long = position.longitude.toString();
   String lat = position.latitude.toString();
-  print("long:$long");
-  print("lat:$lat");
   return position;
 }

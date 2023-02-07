@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:nyumba/pages/login.dart';
 import 'package:nyumba/property.dart';
@@ -50,9 +52,9 @@ class _FavoriteState extends State<Favorite> {
       appBar: AppBar(
         backgroundColor: Colors.brown,
         centerTitle: true,
-        title: Text(
-          S.of(context).favorites,
-          style: const TextStyle(color: Colors.white),
+        title: const Text(
+          "Saved",
+          style: TextStyle(color: Colors.white),
         ),
         actions: [
           IconButton(
@@ -114,23 +116,6 @@ class _RentalsListState extends State<RentalsList> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(S.of(context).favorites),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: Text((widget.rentals.length).toString()),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
         ListView.builder(
             shrinkWrap: true,
             itemCount: widget.rentals.length,
@@ -145,60 +130,101 @@ class _RentalsListState extends State<RentalsList> {
                               id: widget.rentals[index].id,
                             )),
                   ),
-                  child: SizedBox(
-                    child: Card(
-                      shape: const RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.brown),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              'images/hero-img.jpg',
-                              width: 100,
-                              height: 100,
+                  child: Stack(
+                    children: [
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: const Image(
+                              image: AssetImage('images/hero-img.jpg'),
+                              height: 60,
+                              width: 70,
+                              fit: BoxFit.cover,
                             ),
-                            Column(
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(12.0,8,8,8),
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(widget.rentals[index].title),
                                 Text(
-                                  (widget.rentals[index].price).toString(),
-                                  style: const TextStyle(
-                                      color: Colors.brown,
-                                      fontWeight: FontWeight.bold),
+                                  "${widget.rentals[index].district}, ${widget.rentals[index].category}",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                Row(children: [
-                                  const Icon(Icons.location_pin),
-                                  Text(widget.rentals[index].district),
-                                ]),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 20.0),
+                                      child: Row(
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.only(right: 4.0),
+                                            child: Icon(
+                                              Icons.bathtub_outlined,
+                                              color: Color.fromARGB(
+                                                  255, 124, 123, 123),
+                                            ),
+                                          ),
+                                          Text(
+                                            (widget.rentals[index].bathrooms)
+                                                .toString(),
+                                            style: const TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 124, 123, 123),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.only(right: 4.0),
+                                          child: Icon(
+                                            Icons.bed,
+                                            color: Color.fromARGB(
+                                                255, 124, 123, 123),
+                                          ),
+                                        ),
+                                        Text(
+                                          (widget.rentals[index].bedrooms)
+                                              .toString(),
+                                          style: const TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 124, 123, 123),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Text("UGX ${widget.rentals[index].price} per month"),
                               ],
                             ),
-                            TextButton(
-                              onPressed: () async {
-                                await SpesnowProvider()
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: IconButton(
+                          onPressed: () async {
+                             await SpesnowProvider()
                                     .removeFavorite(widget.rentals[index].id);
                                 setState(() {
                                   widget.rentals.removeAt(index);
                                 });
                                 const snackBar = SnackBar(
                                   content:
-                                      Text('Rental removed from favorites'),
+                                      Text('Rental has been unsaved'),
                                 );
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(snackBar);
-                              },
-                              child: const Icon(
-                                Icons.cancel,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
+                          },
+                          icon: Icon(Icons.close),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               );

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:nyumba/models/category.dart' as my;
 import 'package:nyumba/models/rental.dart';
@@ -17,23 +15,13 @@ class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
   });
-  
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   final searchController = TextEditingController();
-
-  @override
-  void initState() {
-    _getLocation();
-    super.initState();
-  }
-
-  _getLocation() async {
-    await getLocation();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +88,7 @@ class _HomePageState extends State<HomePage> {
                     }
                   } else {
                     return const Padding(
-                      padding: EdgeInsets.only(top: 20.0),
+                      padding: EdgeInsets.only(top: 20.0, bottom: 20),
                       child: Center(
                         child: LinearProgressIndicator(),
                       ),
@@ -108,20 +96,61 @@ class _HomePageState extends State<HomePage> {
                   }
                 },
               ),
-              Container(
-                color: Colors.brown,
-                height: 50,
-                width: double.infinity,
-                child: const Center(
-                  child: Text(
-                    'Latest Rentals',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                        fontSize: 18),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15.0, 0, 15, 0),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.brown),
+                  height: 120,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Did you know?",
+                          style: TextStyle(color: Colors.white, fontSize: 15),
+                        ),
+                        const Text(
+                          "We have a website,",
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                        const Text(
+                          "For property sales and auctions!",
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            "VISIT NOW >",
+                            style: TextStyle(color: Colors.yellow),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
+              // Padding(
+              //   padding: const EdgeInsets.only(top: 8.0),
+              //   child: Container(
+              //     color: Colors.brown,
+              //     height: 50,
+              //     width: double.infinity,
+              //     child: const Center(
+              //       child: Text(
+              //         'Latest Rentals',
+              //         style: TextStyle(
+              //             color: Colors.white,
+              //             fontWeight: FontWeight.normal,
+              //             fontSize: 18),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               FutureBuilder<List<Rental>>(
                 future: SpesnowProvider().fetchLatestRentals(http.Client()),
                 builder: (context, snapshot) {

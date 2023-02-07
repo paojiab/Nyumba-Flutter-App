@@ -2,7 +2,6 @@ import 'package:nyumba/LanguageChangeProvider.dart';
 import 'package:nyumba/account.dart';
 import 'package:nyumba/favorite.dart';
 import 'package:nyumba/home_page.dart';
-import 'package:nyumba/pages/login.dart';
 import 'package:nyumba/pages/scout.dart';
 import 'package:nyumba/pages/search.dart';
 import 'package:nyumba/wallet.dart';
@@ -20,7 +19,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<LanguageChangeProvider>(
+    return ChangeNotifierProvider<LanguageChangeProvider>( 
       create: (context) => LanguageChangeProvider(),
       child: Builder(builder: (context) {
         return MaterialApp(

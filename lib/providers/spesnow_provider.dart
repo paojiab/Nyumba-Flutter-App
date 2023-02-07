@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:nyumba/models/category.dart' as my;
 import 'package:nyumba/models/rental.dart';
+import 'package:nyumba/providers/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SpesnowProvider {
@@ -280,14 +281,28 @@ class SpesnowProvider {
     return compute(parseRentals, response.body);
   }
 
+  Future<List<Rental>> fetchSortedRentals(http.Client client, search, sortPrice) async {
+    final url = Uri.parse(_baseUrl + "rentals?search=" + search + "&sortPrice=" + sortPrice);
+    final response =
+        await client.get(url);
+    return compute(parseRentals, response.body);
+  }
+
   Future<List<Rental>> fetchLatestRentals(http.Client client) async {
     final response = await client.get(Uri.parse("${_baseUrl}rentals/latest"));
     return compute(parseRentals, response.body);
   }
 
-  Future<List<Rental>> fetchSortedRentals(http.Client client, endpoint) async {
-    final response =
-        await client.get(Uri.parse("${_baseUrl}query?sort=$endpoint"));
+  Future<List<Rental>> fetchNearestRentals(
+      http.Client client, long, lat) async {
+    final response = await client
+        .get(Uri.parse("${_baseUrl}rentals/nearest?lat=$lat&long=$long"));
     return compute(parseRentals, response.body);
   }
+
+  // Future<List<Rental>> fetchSortedRentals(http.Client client, endpoint) async {
+  //   final response =
+  //       await client.get(Uri.parse("${_baseUrl}query?sort=$endpoint"));
+  //   return compute(parseRentals, response.body);
+  // }
 }

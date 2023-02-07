@@ -15,7 +15,15 @@ class Result extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
         backgroundColor: Colors.brown,
+        centerTitle: true,
         title: Text(
           S.of(context).results,
           style: const TextStyle(color: Colors.white),
@@ -23,14 +31,9 @@ class Result extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: ((context) => const Filter()),
-                ),
-              );
+             Navigator.pushNamed(context, '/search');
             },
-            icon: const Icon(Icons.filter_alt),
+            icon: const Icon(Icons.search),
             color: Colors.white,
           ),
           IconButton(
