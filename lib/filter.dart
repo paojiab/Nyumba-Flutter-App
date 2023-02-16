@@ -1,14 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:nyumba/providers/meilisearch.dart';
 import 'generated/l10n.dart';
 
-class Filter extends StatelessWidget {
+class Filter extends StatefulWidget {
   const Filter({super.key});
+
+  @override
+  State<Filter> createState() => _FilterState();
+}
+
+class _FilterState extends State<Filter> {
+  @override
+  void initState() {
+    _facets();
+    super.initState();
+  }
+
+  _facets() async {
+    await Meilisearch().getFacets("busia");
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: const Icon(Icons.arrow_back_ios)),
         backgroundColor: Colors.brown,
+        centerTitle: true,
         title: Text(
           S.of(context).filter,
           style: const TextStyle(color: Colors.white),
@@ -21,37 +44,24 @@ class Filter extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: [
-            Card(
-              child: ListTile(
-                title: Text(S.of(context).category),
-                trailing: const Icon(Icons.arrow_forward_ios),
-              ),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'Category',
+              style: TextStyle(fontSize: 16),
             ),
-            Card(
-              child: ListTile(
-                title: Text(S.of(context).location),
-                trailing: const Icon(Icons.arrow_forward_ios),
-              ),
+          ),
+          CheckboxListTile(
+            value: false,
+            onChanged: (_) {},
+            title: const Text(
+              'Shop (2)',
+              style: TextStyle(fontSize: 14),
             ),
-            Card(
-              child: ListTile(
-                title: Text(S.of(context).price),
-                trailing: const Icon(Icons.arrow_forward_ios),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(40, 20, 40, 0),
-              child: ElevatedButton(
-                onPressed: () {},
-                child: Text(S.of(context).save),
-              ),
-            ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:nyumba/pages/login.dart';
+import 'package:nyumba/prop.dart';
 import 'package:nyumba/property.dart';
 import 'package:nyumba/providers/spesnow_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -126,7 +127,7 @@ class _RentalsListState extends State<RentalsList> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => Property(
+                        builder: (context) => Prop(
                               id: widget.rentals[index].id,
                             )),
                   ),

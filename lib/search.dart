@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nyumba/filter.dart';
 import 'package:nyumba/models/rental.dart';
+import 'package:nyumba/prop.dart';
 import 'package:nyumba/property.dart';
 import 'generated/l10n.dart';
 import 'providers/spesnow_provider.dart';
@@ -114,7 +115,12 @@ class _SearchState extends State<Search> {
                       ),
                     ),
                     TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: ((context) => const Filter())));
+                        },
                         child: const Text(
                           'FILTERS',
                           style: TextStyle(color: Colors.white),
@@ -240,7 +246,7 @@ class _RentalsListState extends State<RentalsList> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => Property(
+                        builder: (context) => Prop(
                               id: widget.rentals[index].id,
                             )),
                   ),
@@ -258,22 +264,25 @@ class _RentalsListState extends State<RentalsList> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(12.0,8,8,8),
+                            padding: const EdgeInsets.fromLTRB(12.0, 8, 8, 8),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   "${widget.rentals[index].district}, ${widget.rentals[index].category}",
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(right: 20.0),
+                                      padding:
+                                          const EdgeInsets.only(right: 20.0),
                                       child: Row(
                                         children: [
                                           const Padding(
-                                            padding: EdgeInsets.only(right: 4.0),
+                                            padding:
+                                                EdgeInsets.only(right: 4.0),
                                             child: Icon(
                                               Icons.bathtub_outlined,
                                               color: Color.fromARGB(
@@ -313,7 +322,8 @@ class _RentalsListState extends State<RentalsList> {
                                     ),
                                   ],
                                 ),
-                                Text("UGX ${widget.rentals[index].price} per month"),
+                                Text(
+                                    "UGX ${widget.rentals[index].price} per month"),
                               ],
                             ),
                           ),
@@ -322,8 +332,7 @@ class _RentalsListState extends State<RentalsList> {
                       Positioned(
                         right: 0,
                         child: IconButton(
-                          onPressed: () async {
-                          },
+                          onPressed: () async {},
                           icon: const Icon(Icons.favorite_border),
                         ),
                       ),

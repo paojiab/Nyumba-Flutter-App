@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nyumba/models/category.dart' as my;
 import 'package:nyumba/models/rental.dart';
 import 'package:nyumba/notification.dart';
+import 'package:nyumba/prop.dart';
 import 'package:nyumba/property.dart';
 import 'package:nyumba/result.dart';
 import 'package:nyumba/search.dart';
@@ -312,9 +313,9 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       icon: _isFavorited
           ? const Icon(
               Icons.favorite,
-              color: Colors.brown,
+              color: Colors.white,
             )
-          : const Icon(Icons.favorite_outline, color: Colors.brown),
+          : const Icon(Icons.favorite_outline, color: Colors.white),
     );
   }
 }
@@ -337,10 +338,15 @@ class _RentalsListState extends State<RentalsList> {
           return Padding(
             padding: const EdgeInsets.fromLTRB(18.0, 18, 18, 0),
             child: GestureDetector(
+              // onTap: () => Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => Property(id: widget.rentals[index].id),
+              //   ),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Property(id: widget.rentals[index].id),
+                  builder: (context) => Prop(id: widget.rentals[index].id),
                 ),
               ),
               child: Column(
@@ -357,9 +363,17 @@ class _RentalsListState extends State<RentalsList> {
                         ),
                       ),
                       Positioned(
-                        right: 5,
+                        right: 10,
+                        top: 10,
                         child:
-                            FavoriteButton(rentalId: widget.rentals[index].id),
+                            ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: Container(
+                            color: Colors.brown,
+                            child: FavoriteButton(
+                                rentalId: widget.rentals[index].id),
+                          ),
+                        ),
                       ),
                     ],
                   ),

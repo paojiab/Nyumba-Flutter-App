@@ -6,6 +6,8 @@ import 'package:nyumba/providers/location.dart';
 import 'package:nyumba/providers/spesnow_provider.dart';
 import 'package:http/http.dart' as http;
 
+import '../prop.dart';
+
 class ScoutPage extends StatefulWidget {
   const ScoutPage({super.key});
 
@@ -165,7 +167,7 @@ class _RentalsListState extends State<RentalsList> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Property(id: widget.rentals[index].id),
+                  builder: (context) => Prop(id: widget.rentals[index].id),
                 ),
               ),
               child: Column(
@@ -181,10 +183,18 @@ class _RentalsListState extends State<RentalsList> {
                           width: double.infinity,
                         ),
                       ),
-                      Positioned(
-                        right: 5,
+                       Positioned(
+                        right: 10,
+                        top: 10,
                         child:
-                            FavoriteButton(rentalId: widget.rentals[index].id),
+                            ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: Container(
+                            color: Colors.brown,
+                            child: FavoriteButton(
+                                rentalId: widget.rentals[index].id),
+                          ),
+                        ),
                       ),
                     ],
                   ),
