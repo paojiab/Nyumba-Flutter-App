@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.nyumba">
+    package="com.example.spesnow">
    <application
-        android:label="nyumba"
+        android:label="Spesnow"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

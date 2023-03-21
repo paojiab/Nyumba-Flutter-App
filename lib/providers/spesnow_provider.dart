@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:nyumba/models/category.dart' as my;
-import 'package:nyumba/models/rental.dart';
-import 'package:nyumba/providers/location.dart';
+import 'package:spesnow/models/category.dart' as my;
+import 'package:spesnow/models/rental.dart';
+import 'package:spesnow/providers/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SpesnowProvider {
-  final String _baseUrl = 'http://127.0.0.1:8000/api/v1/';
-  // final String _baseUrl = "http://10.0.2.2:8000/api/v1/";
+  // final String _baseUrl = 'http://127.0.0.1:8000/api/v1/';
+    // final String _baseUrl = "https://ac5b-154-0-133-66.in.ngrok.io/api/v1/";
+  final String _baseUrl = "http://10.0.2.2:8000/api/v1/";
   // final String _imgUrl='http://mark.dbestech.com/uploads/';
   // getImage(){
   //   return _imgUrl;

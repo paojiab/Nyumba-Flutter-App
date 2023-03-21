@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nyumba/account.dart';
-import 'package:nyumba/favorite.dart';
-import 'package:nyumba/providers/spesnow_provider.dart';
+import 'package:spesnow/account.dart';
+import 'package:spesnow/favorite.dart';
+import 'package:spesnow/providers/spesnow_provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key, required this.page});

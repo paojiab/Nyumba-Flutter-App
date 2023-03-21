@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:nyumba/home_page.dart';
-import 'package:nyumba/models/rental.dart';
-import 'package:nyumba/property.dart';
-import 'package:nyumba/providers/location.dart';
-import 'package:nyumba/providers/spesnow_provider.dart';
+import 'package:spesnow/home_page.dart';
+import 'package:spesnow/models/rental.dart';
+import 'package:spesnow/providers/location.dart';
+import 'package:spesnow/providers/spesnow_provider.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:geocoding/geocoding.dart';
 import '../prop.dart';
+
+locate() async {
+  List<Placemark> placemarks =
+      // await placemarkFromCoordinates(52.2165157, 6.9437819);
+  // await placemarkFromCoordinates(0.317, 32.583);
+   await placemarkFromCoordinates(0.0562405, 32.460009);
+  return placemarks;
+}
 
 class ScoutPage extends StatefulWidget {
   const ScoutPage({super.key});
@@ -37,6 +44,25 @@ class _ScoutPageState extends State<ScoutPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            FutureBuilder(
+                future: locate(),
+                builder: ((context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("Something went wrong!"),
+                    );
+                  } else if (snapshot.hasData) {
+                    final locator = snapshot.data!;
+                    return Text(locator.toString());
+                  } else {
+                    return const Center(
+                        child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: LinearProgressIndicator(),
+                    ));
+                  }
+                })),
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
               child: SizedBox(
@@ -58,7 +84,10 @@ class _ScoutPageState extends State<ScoutPage> {
                             future: getLocation(),
                             builder: (context, snapshot) {
                               if (snapshot.hasError) {
-                                return const Text("An error has occurred");
+                                return const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text("Something went wrong!"),
+                                );
                               } else if (snapshot.hasData) {
                                 final location = snapshot.data!;
                                 return Text(location.toString());
@@ -108,7 +137,10 @@ class _ScoutPageState extends State<ScoutPage> {
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
                           return const Center(
-                            child: Text('An error has occurred!'),
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('Something went wrong!'),
+                            ),
                           );
                         } else if (snapshot.hasData) {
                           if (snapshot.data!.isEmpty) {
@@ -183,11 +215,10 @@ class _RentalsListState extends State<RentalsList> {
                           width: double.infinity,
                         ),
                       ),
-                       Positioned(
+                      Positioned(
                         right: 10,
                         top: 10,
-                        child:
-                            ClipRRect(
+                        child: ClipRRect(
                           borderRadius: BorderRadius.circular(10.0),
                           child: Container(
                             color: Colors.brown,

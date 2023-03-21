@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nyumba/LanguageChangeProvider.dart';
+import 'package:spesnow/LanguageChangeProvider.dart';
 
 class Preferences extends StatelessWidget {
   const Preferences({super.key});

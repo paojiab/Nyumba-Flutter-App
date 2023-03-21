@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nyumba/search.dart';
+import 'package:spesnow/search.dart';
 
 class SearchPage extends StatefulWidget {
 

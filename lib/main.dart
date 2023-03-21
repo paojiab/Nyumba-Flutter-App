@@ -1,10 +1,10 @@
-import 'package:nyumba/LanguageChangeProvider.dart';
-import 'package:nyumba/account.dart';
-import 'package:nyumba/favorite.dart';
-import 'package:nyumba/home_page.dart';
-import 'package:nyumba/pages/scout.dart';
-import 'package:nyumba/pages/search.dart';
-import 'package:nyumba/wallet.dart';
+import 'package:spesnow/LanguageChangeProvider.dart';
+import 'package:spesnow/account.dart';
+import 'package:spesnow/favorite.dart';
+import 'package:spesnow/home_page.dart';
+import 'package:spesnow/pages/scout.dart';
+import 'package:spesnow/pages/search.dart';
+import 'package:spesnow/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';

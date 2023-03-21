@@ -1,10 +1,18 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:nyumba/models/rental.dart';
-import 'package:nyumba/pages/subscribe.dart';
-import 'package:nyumba/providers/spesnow_provider.dart';
+import 'package:spesnow/models/rental.dart';
+import 'package:spesnow/pages/subscribe.dart';
+import 'package:spesnow/providers/spesnow_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+ final List<String> imgList = [
+    'https://images.unsplash.com/photo-1520342868574-5fa3804e551c?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=6ff92caffcdd63681a35134a6770ed3b&auto=format&fit=crop&w=1951&q=80',
+    'https://images.unsplash.com/photo-1522205408450-add114ad53fe?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=368f45b0888aeb0b7b08e3a1084d3ede&auto=format&fit=crop&w=1950&q=80',
+    'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=94a1e718d89ca60a6337a6008341ca50&auto=format&fit=crop&w=1950&q=80',
+    'https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=89719a0d55dd05e2deae4120227e6efc&auto=format&fit=crop&w=1953&q=80',
+    'https://images.unsplash.com/photo-1508704019882-f9cf40e475b4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=8c6e5e3aba713b17aa1fe71ab4f0ae5b&auto=format&fit=crop&w=1352&q=80',
+    'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=a0c8d632e977f94e5d312d9893258f59&auto=format&fit=crop&w=1355&q=80'
+  ];
 
 class Prop extends StatefulWidget {
   const Prop({super.key, required this.id});
@@ -62,6 +70,29 @@ class _PropState extends State<Prop> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10.0),
+            child: Container(
+              color: Colors.brown,
+              child: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
           child: FutureBuilder(
               future: futureRental,
@@ -70,42 +101,31 @@ class _PropState extends State<Prop> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Stack(
-                        children: [
-                          Image.asset(
-                            "images/hero-img.jpg",
-                            width: double.infinity,
-                            height: 250,
-                            fit: BoxFit.cover,
-                          ),
-                          Positioned(
-                            top: 10,
-                            left: 10,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10.0),
-                              child: Container(
-                                color: Colors.brown,
-                                child: IconButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  icon: const Icon(
-                                    Icons.arrow_back_ios,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      Container(
+                        // height: 250,
+                          child: CarouselSlider(
+                        options: CarouselOptions(),
+                        items: imgList
+                            .map((item) => Container(
+                                  child: Center(
+                                      child: Image.network(item,
+                                          fit: BoxFit.cover, width: 1000)),
+                                ))
+                            .toList(),
+                      )),
+                      // Image.asset(
+                      //   "images/hero-img.jpg",
+                      //   width: double.infinity,
+                      //   height: 250,
+                      //   fit: BoxFit.cover,
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              snapshot.data!.category,
+                              "${snapshot.data!.category} for rent",
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18),
                             ),
@@ -267,9 +287,34 @@ class _PropState extends State<Prop> {
                                 );
                               }
                             },
-                            child: Text(_subscribed
-                                ? snapshot.data!.landlordTel
-                                : "Unlock Contact"),
+                            // child: Text(_subscribed
+                            //     ? snapshot.data!.landlordTel
+                            //     : "Schedule Tour"),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: Text('Schedule Tour'),
+                                ),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 1.0),
+                                      child: Text(
+                                        '1',
+                                        style: TextStyle(color: Colors.yellow),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.key,
+                                      color: Colors.yellow,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         )),
                       ),
@@ -348,6 +393,51 @@ class _PropState extends State<Prop> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
+                                  'Teachers',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Not Allowed',
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Students',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Not Allowed',
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Children',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Not Allowed',
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
                                   'Furnished',
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
@@ -389,6 +479,57 @@ class _PropState extends State<Prop> {
                           ),
                         ],
                       ),
+                       const Divider(
+                        color: Color.fromARGB(255, 100, 100, 100),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Outdoor Photos',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const Divider(
+                        color: Color.fromARGB(255, 100, 100, 100),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Amenities & Highlights',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('\u2022 Swimming Pool'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('\u2022 Gym'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('\u2022 Cabinets'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('\u2022 Laundry Machine'),
+                      ),
+                      const Divider(
+                        color: Color.fromARGB(255, 100, 100, 100),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Description',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."),
+                      ),
                     ],
                   );
                 } else if (snapshot.hasError) {
@@ -404,3 +545,45 @@ class _PropState extends State<Prop> {
     );
   }
 }
+
+ final List<Widget> imageSliders = imgList
+    .map((item) => Container(
+          child: Container(
+            margin: EdgeInsets.all(5.0),
+            child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                child: Stack(
+                  children: <Widget>[
+                    Image.network(item, fit: BoxFit.cover, width: 1000.0),
+                    Positioned(
+                      bottom: 0.0,
+                      left: 0.0,
+                      right: 0.0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color.fromARGB(200, 0, 0, 0),
+                              Color.fromARGB(0, 0, 0, 0)
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 20.0),
+                        child: Text(
+                          'No. ${imgList.indexOf(item)} image',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
+          ),
+        ))
+    .toList();

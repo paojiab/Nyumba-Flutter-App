@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nyumba/providers/meilisearch.dart';
+import 'package:spesnow/providers/meilisearch.dart';
 import 'generated/l10n.dart';
 
 class Filter extends StatefulWidget {

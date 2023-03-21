@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:nyumba/pages/login.dart';
-import 'package:nyumba/prop.dart';
-import 'package:nyumba/property.dart';
-import 'package:nyumba/providers/spesnow_provider.dart';
+import 'package:spesnow/pages/login.dart';
+import 'package:spesnow/prop.dart';
+import 'package:spesnow/property.dart';
+import 'package:spesnow/providers/spesnow_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'generated/l10n.dart';
 import 'package:http/http.dart' as http;

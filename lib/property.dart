@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:nyumba/models/rental.dart';
-import 'package:nyumba/pages/subscribe.dart';
-import 'package:nyumba/providers/spesnow_provider.dart';
+import 'package:spesnow/models/rental.dart';
+import 'package:spesnow/pages/subscribe.dart';
+import 'package:spesnow/providers/spesnow_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'generated/l10n.dart';
 

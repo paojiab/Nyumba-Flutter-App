@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nyumba/account.dart';
+import 'package:spesnow/account.dart';
 
 class Subscribe extends StatelessWidget {
   const Subscribe({super.key});

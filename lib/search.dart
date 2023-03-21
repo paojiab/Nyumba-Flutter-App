@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nyumba/filter.dart';
-import 'package:nyumba/models/rental.dart';
-import 'package:nyumba/prop.dart';
-import 'package:nyumba/property.dart';
+import 'package:spesnow/filter.dart';
+import 'package:spesnow/models/rental.dart';
+import 'package:spesnow/prop.dart';
+import 'package:spesnow/property.dart';
 import 'generated/l10n.dart';
 import 'providers/spesnow_provider.dart';
 import 'package:http/http.dart' as http;

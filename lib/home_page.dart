@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:nyumba/models/category.dart' as my;
-import 'package:nyumba/models/rental.dart';
-import 'package:nyumba/notification.dart';
-import 'package:nyumba/prop.dart';
-import 'package:nyumba/property.dart';
-import 'package:nyumba/result.dart';
-import 'package:nyumba/search.dart';
+import 'package:spesnow/models/category.dart' as my;
+import 'package:spesnow/models/rental.dart';
+import 'package:spesnow/notification.dart';
+import 'package:spesnow/prop.dart';
+import 'package:spesnow/property.dart';
+import 'package:spesnow/result.dart';
+import 'package:spesnow/search.dart';
 import 'generated/l10n.dart';
 import 'package:http/http.dart' as http;
-import 'package:nyumba/providers/spesnow_provider.dart';
+import 'package:spesnow/providers/spesnow_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/location.dart';
 
@@ -64,122 +64,124 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: SingleChildScrollView(
-        child: SizedBox(
-          width: double.infinity,
-          child: Column(
-            children: [
-              FutureBuilder<List<my.Category>>(
-                future: SpesnowProvider().fetchCategories(http.Client()),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    print(snapshot.error);
-                    return const Center(
-                      child: Text('An error has occurred!'),
-                    );
-                  } else if (snapshot.hasData) {
-                    if (snapshot.data!.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-                        child: Center(
-                          child: Text('No categories found'),
-                        ),
-                      );
-                    } else {
-                      return CategoriesList(categories: snapshot.data!);
-                    }
-                  } else {
+        child: Column(
+          children: [
+            FutureBuilder<List<my.Category>>(
+              future: SpesnowProvider().fetchCategories(http.Client()),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  print(snapshot.error);
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text('Something went wrong!'),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  if (snapshot.data!.isEmpty) {
                     return const Padding(
-                      padding: EdgeInsets.only(top: 20.0, bottom: 20),
+                      padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
                       child: Center(
-                        child: LinearProgressIndicator(),
+                        child: Text('No categories found'),
                       ),
                     );
+                  } else {
+                    return CategoriesList(categories: snapshot.data!);
                   }
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(15.0, 0, 15, 0),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.brown),
-                  height: 120,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Did you know?",
-                          style: TextStyle(color: Colors.white, fontSize: 15),
-                        ),
-                        const Text(
-                          "We have a website,",
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                        const Text(
-                          "For property sales and auctions!",
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            "VISIT NOW >",
-                            style: TextStyle(color: Colors.yellow),
-                          ),
-                        ),
-                      ],
+                } else {
+                  return const Padding(
+                    padding: EdgeInsets.only(top: 20.0, bottom: 20),
+                    child: Center(
+                      child: LinearProgressIndicator(),
                     ),
+                  );
+                }
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15.0, 0, 15, 0),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.brown),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Did you know?",
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                      const Text(
+                        "We have a website,",
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                      const Text(
+                        "For property sales and auctions!",
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          "VISIT NOW >",
+                          style: TextStyle(color: Colors.yellow),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              // Padding(
-              //   padding: const EdgeInsets.only(top: 8.0),
-              //   child: Container(
-              //     color: Colors.brown,
-              //     height: 50,
-              //     width: double.infinity,
-              //     child: const Center(
-              //       child: Text(
-              //         'Latest Rentals',
-              //         style: TextStyle(
-              //             color: Colors.white,
-              //             fontWeight: FontWeight.normal,
-              //             fontSize: 18),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              FutureBuilder<List<Rental>>(
-                future: SpesnowProvider().fetchLatestRentals(http.Client()),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    print(snapshot.error);
-                    return const Center(
-                      child: Text('An error has occurred!'),
-                    );
-                  } else if (snapshot.hasData) {
-                    if (snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text('No rentals found'),
-                      );
-                    } else {
-                      return RentalsList(rentals: snapshot.data!);
-                    }
-                  } else {
-                    return const Padding(
+            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(top: 8.0),
+            //   child: Container(
+            //     color: Colors.brown,
+            //     height: 50,
+            //     width: double.infinity,
+            //     child: const Center(
+            //       child: Text(
+            //         'Latest Rentals',
+            //         style: TextStyle(
+            //             color: Colors.white,
+            //             fontWeight: FontWeight.normal,
+            //             fontSize: 18),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            FutureBuilder<List<Rental>>(
+              future: SpesnowProvider().fetchLatestRentals(http.Client()),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  print(snapshot.error);
+                  return const Center(
+                    child: Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      child: Text('Something went wrong!'),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  if (snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text('No rentals found'),
                     );
+                  } else {
+                    return RentalsList(rentals: snapshot.data!);
                   }
-                },
-              ),
-            ],
-          ),
+                } else {
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -332,6 +334,7 @@ class _RentalsListState extends State<RentalsList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: widget.rentals.length,
         itemBuilder: (context, index) {
@@ -365,8 +368,7 @@ class _RentalsListState extends State<RentalsList> {
                       Positioned(
                         right: 10,
                         top: 10,
-                        child:
-                            ClipRRect(
+                        child: ClipRRect(
                           borderRadius: BorderRadius.circular(10.0),
                           child: Container(
                             color: Colors.brown,
