@@ -8,21 +8,20 @@ import 'package:geocoding/geocoding.dart';
 import '../prop.dart';
 
 locate() async {
-  List<Placemark> placemarks =
-      // await placemarkFromCoordinates(52.2165157, 6.9437819);
-  // await placemarkFromCoordinates(0.317, 32.583);
-   await placemarkFromCoordinates(0.0562405, 32.460009);
-  return placemarks;
+  final cords = await getLocation();
+  print(cords);
+  final lat = cords.latitude;
+  final long = cords.longitude;
+  List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+  final locality = placemarks[0].locality;
+  final street = placemarks[0].street;
+  final locale = "$locality, $street";
+  return locale;
 }
 
-class ScoutPage extends StatefulWidget {
+class ScoutPage extends StatelessWidget {
   const ScoutPage({super.key});
 
-  @override
-  State<ScoutPage> createState() => _ScoutPageState();
-}
-
-class _ScoutPageState extends State<ScoutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,24 +45,36 @@ class _ScoutPageState extends State<ScoutPage> {
           children: [
             FutureBuilder(
                 future: locate(),
-                builder: ((context, snapshot) {
+                builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text("Something went wrong!"),
                     );
                   } else if (snapshot.hasData) {
-                    final locator = snapshot.data!;
-                    return Text(locator.toString());
+                    return GivenLocation(locationG: snapshot.data!);
                   } else {
-                    return const Center(
-                        child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: LinearProgressIndicator(),
-                    ));
+                    return const Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
                   }
-                })),
-            Padding(
+                }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GivenLocation extends StatelessWidget {
+  const GivenLocation({super.key, required this.locationG});
+  final locationG;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+         Padding(
               padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
               child: SizedBox(
                 width: double.infinity,
@@ -80,32 +91,14 @@ class _ScoutPageState extends State<ScoutPage> {
                               color: Color.fromARGB(255, 124, 123, 123),
                               fontSize: 12),
                         ),
-                        FutureBuilder(
-                            future: getLocation(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasError) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text("Something went wrong!"),
-                                );
-                              } else if (snapshot.hasData) {
-                                final location = snapshot.data!;
-                                return Text(location.toString());
-                              } else {
-                                return const Center(
-                                    child: Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: LinearProgressIndicator(),
-                                ));
-                              }
-                            }),
+                        Text(locationG),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-            Padding(
+             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Container(
                 color: Colors.brown,
@@ -155,9 +148,9 @@ class _ScoutPageState extends State<ScoutPage> {
                           }
                         } else {
                           return const Padding(
-                            padding: EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(10.0),
                             child: Center(
-                              child: CircularProgressIndicator(),
+                              child: LinearProgressIndicator(),
                             ),
                           );
                         }
@@ -171,9 +164,7 @@ class _ScoutPageState extends State<ScoutPage> {
                     ));
                   }
                 }),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }
