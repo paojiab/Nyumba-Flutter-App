@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:spesnow/providers/algolia.dart';
 import 'package:spesnow/search.dart';
 
 class SearchPage extends StatefulWidget {
-
   const SearchPage({super.key});
 
   @override
@@ -10,6 +10,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+
+  List _suggestions = [];
   late final TextEditingController _controller = TextEditingController()
     ..addListener(() {
       setState(() {});
@@ -24,6 +26,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+           
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.brown,
@@ -38,6 +41,13 @@ class _SearchPageState extends State<SearchPage> {
               autocorrect: false,
               autofocus: true,
               controller: _controller,
+              onChanged: (value) async {
+                final hits =
+                    await AlgoliaProvider().fetchQuerySuggestions(value);
+                setState(() {
+                  _suggestions = hits;
+                });
+              },
               onSubmitted: (value) {
                 Navigator.push(
                   context,
@@ -75,6 +85,23 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
         ],
+      ),
+        body: ListView.builder(
+        itemCount: _suggestions.length,
+        itemBuilder: (context, index) {
+          final query = _suggestions[index]['query'];
+          return ListTile(
+            onTap: () {
+               Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Search(search: query),
+                  ),
+                );
+            },
+            title: Text(query),
+          );
+        },
       ),
     );
   }

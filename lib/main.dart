@@ -2,15 +2,18 @@ import 'package:spesnow/LanguageChangeProvider.dart';
 import 'package:spesnow/account.dart';
 import 'package:spesnow/favorite.dart';
 import 'package:spesnow/home_page.dart';
-import 'package:spesnow/pages/scout.dart';
+import 'package:spesnow/pages/scout.dart'; 
 import 'package:spesnow/pages/search.dart';
 import 'package:spesnow/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'generated/l10n.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future main() async {
+  // Initialize dot env
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

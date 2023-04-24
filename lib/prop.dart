@@ -1,7 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:spesnow/models/rental.dart';
-import 'package:spesnow/pages/subscribe.dart';
+import 'package:spesnow/pages/book.dart';
+import 'package:spesnow/pages/map.dart';
 import 'package:spesnow/providers/spesnow_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -72,6 +73,30 @@ class _PropState extends State<Prop> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Container(
+                color: Colors.white,
+                child: IconButton(
+                  onPressed: () {
+                     Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const MapSample()),
+                                );
+                  },
+                  icon: const Icon(
+                    Icons.map_outlined,
+                    color: Colors.brown,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ClipRRect(
@@ -102,7 +127,6 @@ class _PropState extends State<Prop> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        // height: 250,
                           child: CarouselSlider(
                         options: CarouselOptions(),
                         items: imgList
@@ -283,38 +307,13 @@ class _PropState extends State<Prop> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => const Subscribe()),
+                                      builder: (context) => BookPage()),
                                 );
                               }
                             },
-                            // child: Text(_subscribed
-                            //     ? snapshot.data!.landlordTel
-                            //     : "Schedule Tour"),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10.0),
-                                  child: Text('Schedule Tour'),
-                                ),
-                                Row(
-                                  children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 1.0),
-                                      child: Text(
-                                        '1',
-                                        style: TextStyle(color: Colors.yellow),
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.key,
-                                      color: Colors.yellow,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                            child: Text(_subscribed
+                                ? snapshot.data!.landlordTel
+                                : "Book a Tour"),
                           ),
                         )),
                       ),
@@ -473,6 +472,21 @@ class _PropState extends State<Prop> {
                                 ),
                                 Text(
                                   snapshot.data!.guard == 1 ? 'Yes' : 'No',
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Down Payment',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  '3 Months',
                                 ),
                               ],
                             ),

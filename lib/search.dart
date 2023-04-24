@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:spesnow/filter.dart';
 import 'package:spesnow/models/rental.dart';
+import 'package:spesnow/pages/filter.dart';
 import 'package:spesnow/prop.dart';
 import 'package:spesnow/property.dart';
+import 'package:spesnow/providers/algolia.dart';
 import 'generated/l10n.dart';
 import 'providers/spesnow_provider.dart';
 import 'package:http/http.dart' as http;
@@ -10,21 +12,28 @@ import 'package:http/http.dart' as http;
 const List<String> sort = <String>['Relevant', 'Lowest price', 'Highest price'];
 
 class Search extends StatefulWidget {
-  const Search({super.key, required this.search});
+   Search({super.key, required this.search, this.filterParams});
 
   final String search;
+   String? filterParams;
 
   @override
   State<Search> createState() => _SearchState();
 }
 
 class _SearchState extends State<Search> {
+  final GlobalKey<ScaffoldState> _mainScaffoldKey = GlobalKey();
+
   String _sorted = "no";
   String dropdownValue = sort.first;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _mainScaffoldKey,
+      endDrawer: Drawer(
+        child: Filter(query: widget.search),
+      ),
       appBar: AppBar(
         backgroundColor: Colors.brown,
         automaticallyImplyLeading: false,
@@ -115,11 +124,16 @@ class _SearchState extends State<Search> {
                       ),
                     ),
                     TextButton(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          // _mainScaffoldKey.currentState?.openEndDrawer();
+                          final result = await Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                  builder: ((context) => const Filter())));
+                              (MaterialPageRoute(
+                                  builder: (context) =>
+                                      Filter(query: widget.search, filterString: widget.filterParams,))));
+                          setState(() {
+                            widget.filterParams = result;
+                          });
                         },
                         child: const Text(
                           'FILTERS',
@@ -131,9 +145,9 @@ class _SearchState extends State<Search> {
               Padding(
                 padding:
                     const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
-                child: FutureBuilder<List<Rental>>(
-                  future: SpesnowProvider()
-                      .fetchSearchRentals(http.Client(), widget.search),
+                child: FutureBuilder(
+                  future: AlgoliaProvider().fetchQueries(
+                      widget.search, "rentals", widget.filterParams ?? ""),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       // print(snapshot.error);
@@ -146,7 +160,12 @@ class _SearchState extends State<Search> {
                           child: Text('No rentals found'),
                         );
                       } else {
-                        return RentalsList(rentals: snapshot.data!);
+                        final result = snapshot.data!;
+                        final rentals = result['hits'];
+                        final queryID = result['queryID'];
+                        final nbHits = result['nbHits'];
+                        return RentalsList(
+                            rentals: rentals, queryID: queryID, nbHits: nbHits);
                       }
                     } else {
                       return const Center(
@@ -160,12 +179,12 @@ class _SearchState extends State<Search> {
               Padding(
                 padding:
                     const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
-                child: FutureBuilder<List<Rental>>(
-                  future: SpesnowProvider()
-                      .fetchSortedRentals(http.Client(), widget.search, "asc"),
+                child: FutureBuilder(
+                  future: AlgoliaProvider().fetchQueries(widget.search,
+                      "rentals_price_ascending", widget.filterParams ?? ""),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      // print(snapshot.error);
+                      print(snapshot.error);
                       return const Center(
                         child: Text('An error has occurred!'),
                       );
@@ -175,7 +194,12 @@ class _SearchState extends State<Search> {
                           child: Text('No rentals found'),
                         );
                       } else {
-                        return RentalsList(rentals: snapshot.data!);
+                        final result = snapshot.data!;
+                        final rentals = result['hits'];
+                        final queryID = result['queryID'];
+                        final nbHits = result['nbHits'];
+                        return RentalsList(
+                            rentals: rentals, queryID: queryID, nbHits: nbHits);
                       }
                     } else {
                       return const Center(
@@ -189,9 +213,9 @@ class _SearchState extends State<Search> {
               Padding(
                 padding:
                     const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
-                child: FutureBuilder<List<Rental>>(
-                  future: SpesnowProvider()
-                      .fetchSortedRentals(http.Client(), widget.search, "desc"),
+                child: FutureBuilder(
+                  future: AlgoliaProvider().fetchQueries(widget.search,
+                      "rentals_price_descending", widget.filterParams ?? ""),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       // print(snapshot.error);
@@ -204,7 +228,12 @@ class _SearchState extends State<Search> {
                           child: Text('No rentals found'),
                         );
                       } else {
-                        return RentalsList(rentals: snapshot.data!);
+                        final result = snapshot.data!;
+                        final rentals = result['hits'];
+                        final queryID = result['queryID'];
+                        final nbHits = result['nbHits'];
+                        return RentalsList(
+                            rentals: rentals, queryID: queryID, nbHits: nbHits);
                       }
                     } else {
                       return const Center(
@@ -223,9 +252,15 @@ class _SearchState extends State<Search> {
 }
 
 class RentalsList extends StatefulWidget {
-  const RentalsList({super.key, required this.rentals});
+  const RentalsList(
+      {super.key,
+      required this.rentals,
+      required this.nbHits,
+      required this.queryID});
 
-  final List<Rental> rentals;
+  final List<dynamic> rentals;
+  final String queryID;
+  final int nbHits;
 
   @override
   State<RentalsList> createState() => _RentalsListState();
@@ -236,6 +271,18 @@ class _RentalsListState extends State<RentalsList> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0),
+              child: Text(
+                '${widget.nbHits} Rentals Found',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
         ListView.builder(
             shrinkWrap: true,
             itemCount: widget.rentals.length,
@@ -243,13 +290,23 @@ class _RentalsListState extends State<RentalsList> {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Prop(
-                              id: widget.rentals[index].id,
-                            )),
-                  ),
+                  onTap: () {
+                    Future.delayed(const Duration(milliseconds: 100), () async {
+                      await AlgoliaProvider().sendEvents(
+                          widget.queryID,
+                          widget.rentals[index]['objectID'],
+                          index + 1,
+                          "user-1");
+                    });
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Prop(
+                                id: widget.rentals[index]['id'],
+                              )),
+                    );
+                  },
                   child: Stack(
                     children: [
                       Row(
@@ -269,7 +326,7 @@ class _RentalsListState extends State<RentalsList> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "${widget.rentals[index].district}, ${widget.rentals[index].category}",
+                                  "${widget.rentals[index]['district']}, ${widget.rentals[index]['category']}",
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -290,7 +347,7 @@ class _RentalsListState extends State<RentalsList> {
                                             ),
                                           ),
                                           Text(
-                                            (widget.rentals[index].bathrooms)
+                                            (widget.rentals[index]['bathrooms'])
                                                 .toString(),
                                             style: const TextStyle(
                                               color: Color.fromARGB(
@@ -311,7 +368,7 @@ class _RentalsListState extends State<RentalsList> {
                                           ),
                                         ),
                                         Text(
-                                          (widget.rentals[index].bedrooms)
+                                          (widget.rentals[index]['bedrooms'])
                                               .toString(),
                                           style: const TextStyle(
                                             color: Color.fromARGB(
@@ -323,7 +380,7 @@ class _RentalsListState extends State<RentalsList> {
                                   ],
                                 ),
                                 Text(
-                                    "UGX ${widget.rentals[index].price} per month"),
+                                    "UGX ${widget.rentals[index]['price']} per month"),
                               ],
                             ),
                           ),

@@ -1,10 +1,10 @@
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 const _baseUrl = "https://ms-a967dd46a651-1819.lon.meilisearch.io";
 const indexUID = "rentals_index";
-const _token = "6870b7a3c9ca9077bf5e3b263bb9fc3e6f0ae94b";
+final _token = dotenv.env['MEILISEARCH_KEY'] as String;
 final _headers = {
   'Authorization': 'Bearer $_token',
   "Accept": "application/json",

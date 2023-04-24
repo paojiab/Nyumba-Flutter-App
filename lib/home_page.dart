@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spesnow/models/category.dart' as my;
 import 'package:spesnow/models/rental.dart';
 import 'package:spesnow/notification.dart';
+import 'package:spesnow/trials/meilitest.dart';
 import 'package:spesnow/prop.dart';
 import 'package:spesnow/property.dart';
 import 'package:spesnow/result.dart';
@@ -9,8 +10,24 @@ import 'package:spesnow/search.dart';
 import 'generated/l10n.dart';
 import 'package:http/http.dart' as http;
 import 'package:spesnow/providers/spesnow_provider.dart';
+import 'package:spesnow/providers/algolia.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/location.dart';
+
+class RentalCategory {
+  final String name;
+  final String image;
+
+  RentalCategory(this.name, this.image);
+}
+
+final categories = [
+  RentalCategory("Apartment", "images/apartment.png"),
+  RentalCategory("Muzigo", "images/muzigo.png"),
+  RentalCategory("Single Unit", "images/single-unit.png"),
+  RentalCategory("Commercial", "images/commercial.png"),
+  RentalCategory("Multipurpose", "images/multipurpose.png"),
+];
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -54,7 +71,8 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const Notify(),
+                  // builder: (context) => const Notify(),
+                  builder: (context) => SearchPage(),
                 ),
               );
             },
@@ -66,92 +84,42 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            FutureBuilder<List<my.Category>>(
-              future: SpesnowProvider().fetchCategories(http.Client()),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  print(snapshot.error);
-                  return const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Text('Something went wrong!'),
+            SizedBox(
+              height: 120,
+              child: ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => Result(id: categories[index].id),
+                      //   ),
+                      // );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Image(
+                            image: AssetImage(categories[index].image),
+                            width: 90,
+                            height: 80,
+                          ),
+                          Text(
+                            categories[index].name,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ],
+                      ),
                     ),
                   );
-                } else if (snapshot.hasData) {
-                  if (snapshot.data!.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-                      child: Center(
-                        child: Text('No categories found'),
-                      ),
-                    );
-                  } else {
-                    return CategoriesList(categories: snapshot.data!);
-                  }
-                } else {
-                  return const Padding(
-                    padding: EdgeInsets.only(top: 20.0, bottom: 20),
-                    child: Center(
-                      child: LinearProgressIndicator(),
-                    ),
-                  );
-                }
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 0, 15, 0),
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.brown),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Did you know?",
-                        style: TextStyle(color: Colors.white, fontSize: 15),
-                      ),
-                      const Text(
-                        "We have a website,",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                      const Text(
-                        "For property sales and auctions!",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "VISIT NOW >",
-                          style: TextStyle(color: Colors.yellow),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                },
               ),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.only(top: 8.0),
-            //   child: Container(
-            //     color: Colors.brown,
-            //     height: 50,
-            //     width: double.infinity,
-            //     child: const Center(
-            //       child: Text(
-            //         'Latest Rentals',
-            //         style: TextStyle(
-            //             color: Colors.white,
-            //             fontWeight: FontWeight.normal,
-            //             fontSize: 18),
-            //       ),
-            //     ),
-            //   ),
-            // ),
             FutureBuilder<List<Rental>>(
               future: SpesnowProvider().fetchLatestRentals(http.Client()),
               builder: (context, snapshot) {
@@ -183,57 +151,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class CategoriesList extends StatelessWidget {
-  const CategoriesList({super.key, required this.categories});
-
-  final List<my.Category> categories;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 120,
-      child: ListView.builder(
-        shrinkWrap: true,
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Result(id: categories[index].id),
-                ),
-              );
-            },
-            child: Column(
-              children: [
-                // Image.asset(
-                //   'images/apartment.jpg',
-                //   width: 90,
-                //   height: 80,
-                // ),
-                const Image(
-                  image: AssetImage('images/apartment.png'),
-                  width: 90,
-                  height: 80,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    categories[index].name,
-                    style: const TextStyle(color: Colors.brown),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }
@@ -334,7 +251,7 @@ class _RentalsListState extends State<RentalsList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: widget.rentals.length,
         itemBuilder: (context, index) {

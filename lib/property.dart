@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:spesnow/models/rental.dart';
-import 'package:spesnow/pages/subscribe.dart';
+import 'package:spesnow/pages/book.dart';
 import 'package:spesnow/providers/spesnow_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'generated/l10n.dart';
@@ -307,7 +307,7 @@ class _PropertyState extends State<Property> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  const Subscribe()),
+                                                  const BookPage()),
                                         );
                                       }
                                     },

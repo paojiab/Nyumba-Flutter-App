@@ -146,7 +146,7 @@ class _PaymentPageState extends State<PaymentPage> {
                               height: 35,
                             ),
                             Image.asset(
-                              'images/DN.png',
+                              'images/UP.jpg',
                               width: 50,
                               height: 50,
                             ),
