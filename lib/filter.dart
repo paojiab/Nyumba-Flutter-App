@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:spesnow/providers/algolia.dart';
-import 'package:spesnow/providers/meilisearch.dart';
 import 'package:spesnow/search.dart';
 import 'generated/l10n.dart';
 

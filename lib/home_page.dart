@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:spesnow/models/category.dart' as my;
 import 'package:spesnow/models/rental.dart';
 import 'package:spesnow/notification.dart';
-import 'package:spesnow/trials/meilitest.dart';
 import 'package:spesnow/prop.dart';
 import 'package:spesnow/property.dart';
 import 'package:spesnow/result.dart';
@@ -71,8 +70,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  // builder: (context) => const Notify(),
-                  builder: (context) => SearchPage(),
+                  builder: (context) => const Notify(),
                 ),
               );
             },
