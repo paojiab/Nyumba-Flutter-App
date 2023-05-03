@@ -9,11 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'generated/l10n.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 Future main() async {
-  // Initialize dot env
-  await dotenv.load(fileName: ".env");
+  // initialize flutter config
+  WidgetsFlutterBinding.ensureInitialized(); 
+  await FlutterConfig.loadEnvVariables();
   runApp(const MyApp());
 }
 

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 class AlgoliaProvider {
-  final apiKey = dotenv.env['ALGOLIA_SECRET'] as String;
-  final appId = dotenv.env['ALGOLIA_APP_ID'] as String;
+  final apiKey = FlutterConfig.get('ALGOLIA_SECRET');
+  final appId = FlutterConfig.get('ALGOLIA_APP_ID');
 
   Future fetchQueries(String query, String rightIndex, String? filters) async {
     final indexName = rightIndex;
