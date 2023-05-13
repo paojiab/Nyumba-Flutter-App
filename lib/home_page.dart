@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:spesnow/models/category.dart' as my;
 import 'package:spesnow/models/rental.dart';
 import 'package:spesnow/notification.dart';
 import 'package:spesnow/prop.dart';
-import 'package:spesnow/property.dart';
-import 'package:spesnow/result.dart';
-import 'package:spesnow/search.dart';
 import 'generated/l10n.dart';
 import 'package:http/http.dart' as http;
 import 'package:spesnow/providers/spesnow_provider.dart';
-import 'package:spesnow/providers/algolia.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'providers/location.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class RentalCategory {
   final String name;
@@ -28,6 +23,11 @@ final categories = [
   RentalCategory("Multipurpose", "images/multipurpose.png"),
 ];
 
+final List<String> imgList = [
+  'images/a1.png',
+  'images/a2.png',
+];
+
 class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
@@ -40,10 +40,27 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final searchController = TextEditingController();
 
+  int _current = 0;
+  final CarouselController _controller = CarouselController();
+  final List<Widget> imageSliders = imgList
+      .map((item) => Container(
+            margin: const EdgeInsets.all(5.0),
+            child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                child: Stack(
+                  children: <Widget>[
+                    Image.asset(item, fit: BoxFit.cover, width: 1000.0),
+                    // Image.network(item, fit: BoxFit.cover, width: 1000.0),
+                  ],
+                )),
+          ))
+      .toList();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Colors.brown,
         title: Container(
           width: double.infinity,
@@ -52,14 +69,19 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.circular(5),
           ),
           child: Center(
-            child: TextField(
-              showCursor: false,
-              onTap: () {
-                Navigator.pushNamed(context, '/search');
-              },
-              decoration: const InputDecoration(
-                hintText: 'Search for a rental in ...',
-                prefixIcon: Icon(Icons.search),
+            child: SizedBox(
+              height: 40,
+              child: TextField(
+                readOnly: true,
+                style: const TextStyle(fontSize: 13.5),
+                showCursor: false,
+                onTap: () {
+                  Navigator.pushNamed(context, '/search');
+                },
+                decoration: const InputDecoration(
+                  hintText: 'Search for a rental in ...',
+                  prefixIcon: Icon(Icons.search),
+                ),
               ),
             ),
           ),
@@ -82,41 +104,86 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(
-              height: 120,
-              child: ListView.builder(
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => Result(id: categories[index].id),
-                      //   ),
-                      // );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Image(
-                            image: AssetImage(categories[index].image),
-                            width: 90,
-                            height: 80,
-                          ),
-                          Text(
-                            categories[index].name,
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                        ],
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: SizedBox(
+                height: 120,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => Result(id: categories[index].id),
+                        //   ),
+                        // );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Column(
+                          children: [
+                            Image(
+                              image: AssetImage(categories[index].image),
+                              width: 75,
+                              height: 65,
+                            ),
+                            Text(
+                              categories[index].name,
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
+            ),
+            SizedBox(
+              height: 200,
+              child: Column(children: [
+                Expanded(
+                  child: CarouselSlider(
+                    items: imageSliders,
+                    carouselController: _controller,
+                    options: CarouselOptions(
+                        autoPlay: true,
+                        enlargeCenterPage: false,
+                        aspectRatio: 2.0,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            _current = index;
+                          });
+                        }),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: imgList.asMap().entries.map((entry) {
+                    return GestureDetector(
+                      onTap: () => _controller.animateToPage(entry.key),
+                      child: Container(
+                        width: 7.0,
+                        height: 7.0,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 4.0),
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                (Theme.of(context).brightness == Brightness.dark
+                                        ? Colors.white
+                                        : Colors.brown)
+                                    .withOpacity(
+                                        _current == entry.key ? 0.9 : 0.4)),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ]),
             ),
             FutureBuilder<List<Rental>>(
               future: SpesnowProvider().fetchLatestRentals(http.Client()),
@@ -140,9 +207,11 @@ class _HomePageState extends State<HomePage> {
                 } else {
                   return const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top:25.0),
                       child: CircularProgressIndicator(),
                     ),
+                   
                   );
                 }
               },

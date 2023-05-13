@@ -32,13 +32,6 @@ class ScoutPage extends StatelessWidget {
           'Scout',
           style: TextStyle(color: Colors.white),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.help),
-            color: Colors.white,
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -55,8 +48,8 @@ class ScoutPage extends StatelessWidget {
                     return GivenLocation(locationG: snapshot.data!);
                   } else {
                     return const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Center(child: CircularProgressIndicator()),
+                      padding: EdgeInsets.all(50.0),
+                      child: Center(child: LinearProgressIndicator()),
                     );
                   }
                 }),
@@ -80,6 +73,7 @@ class GivenLocation extends StatelessWidget {
                 width: double.infinity,
                 height: 80,
                 child: Card(
+                  elevation: 5,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -150,7 +144,7 @@ class GivenLocation extends StatelessWidget {
                           return const Padding(
                             padding: EdgeInsets.all(10.0),
                             child: Center(
-                              child: LinearProgressIndicator(),
+                              child: CircularProgressIndicator(),
                             ),
                           );
                         }
