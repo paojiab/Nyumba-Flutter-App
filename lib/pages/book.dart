@@ -27,13 +27,6 @@ class _BookPageState extends State<BookPage> {
           "Book a tour",
           style: TextStyle(color: Colors.white),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.help),
-            color: Colors.white,
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -44,6 +37,34 @@ class _BookPageState extends State<BookPage> {
                 decoration: InputDecoration(
                   hintText: 'Number of people',
                   label: Text('How many people are you coming with?'),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top:8.0),
+                child: Stack(
+                  children: [
+                    Card(
+                      elevation: 5,
+                      color: Colors.brown,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right:8.0),
+                              child: Image.asset('images/a2.png', height:50,width: 50,),
+                            ),
+                            Flexible(child: Text('Zenj Cleaners takes care of your home cleaning needs. Call 0700000000', style: TextStyle(color: Colors.yellow),)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top:4.0, left: 8.0),
+                        child: Text('Ad.', style: TextStyle(color: Colors.red),),
+                      ),),
+                  ],
                 ),
               ),
               TableCalendar(

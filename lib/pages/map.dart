@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spesnow/models/school.dart';
+import 'package:spesnow/pages/nears.dart';
 import 'package:spesnow/providers/schools_provider.dart';
 
 class MapSample extends StatefulWidget {
@@ -12,6 +13,8 @@ class MapSample extends StatefulWidget {
 }
 
 class MapSampleState extends State<MapSample> {
+  final GlobalKey<ScaffoldState> _mainScaffoldKey = GlobalKey();
+
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
@@ -30,6 +33,10 @@ class MapSampleState extends State<MapSample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       key: _mainScaffoldKey,
+        endDrawer: const Drawer(
+      child: nearByPage(),
+    ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         leading: IconButton(
@@ -40,84 +47,29 @@ class MapSampleState extends State<MapSample> {
         centerTitle: true,
         title: const Text('Map'),
         backgroundColor: Colors.brown,
+        actions: [
+          Container(),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 400,
-              child: GoogleMap(
-                mapType: MapType.normal,
-                markers: {_rentalMarker},
-                initialCameraPosition: _rental,
-                onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                },
-              ),
-            ),
-            FutureBuilder<List<SchoolModel>>(
-              future: SchoolProvider().getNearbySchools(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  print(snapshot.error);
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Something went wrong!'),
-                    ),
-                  );
-                } else if (snapshot.hasData) {
-                  if (snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text('No schools found'),
-                    );
-                  } else {
-                    return SchoolsList(schools: snapshot.data!);
-                  }
-                } else {
-                  return const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
+      body: Stack(
+        children: [
+          GoogleMap(
+            mapType: MapType.normal,
+            markers: {_rentalMarker},
+            initialCameraPosition: _rental,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+          ),
+          Positioned(
+            bottom: 0,
+            child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () => _mainScaffoldKey.currentState?.openEndDrawer(), child: const Text('Nearby')),
+          )),
+        ],
       ),
     );
-  }
-}
-
-class SchoolsList extends StatelessWidget {
-  const SchoolsList({super.key, required this.schools});
-  final List<SchoolModel> schools;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: schools.length,
-        itemBuilder: (context, index) {
-          return DataTable(columns: const [
-            DataColumn(
-              label: Text(
-                'Name',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ], rows: [
-            DataRow(
-              cells: [
-                DataCell(
-                  Text(schools[index].name),
-                ),
-              ],
-            ),
-          ]);
-        });
   }
 }

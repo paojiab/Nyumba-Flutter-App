@@ -6,11 +6,11 @@ import 'package:flutter_config/flutter_config.dart';
 
 class SchoolProvider {
   // get nearby Schools
-  Future<List<SchoolModel>> getNearbySchools() async {
+  Future<List<SchoolModel>> getNearbySchools(String institute) async {
     final apiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
     LatLng location = const LatLng(0.0524447, 32.4613937);
     const radius = '5000'; // in meters
-    const type = 'school';
+    final type = institute;
     const rankBy = 'distance';
 
     final url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
