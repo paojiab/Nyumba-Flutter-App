@@ -82,21 +82,33 @@ class verifyEmailPage extends StatelessWidget {
                       'Resend Email Verification',
                       style: TextStyle(fontSize: 18),
                     ),
-                    onPressed: () {
-                      Future.delayed(const Duration(milliseconds: 1), () async {
+                    onPressed: () async {
+                      try {
                         await firebaseAuth().verifyEmail();
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.black,
+                            content: const Text(
+                                "Email verification has been resent"),
                           ),
-                          behavior: SnackBarBehavior.floating,
-                          backgroundColor: Colors.black,
-                          content:
-                              const Text("Email verification has been resent"),
-                        ),
-                      );
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.black,
+                            content: const Text("Try again later"),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ),
