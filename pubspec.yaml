@@ -54,11 +54,8 @@ dependencies:
   firebase_auth: ^4.6.0
   webview_flutter: ^4.2.0
   flutter_3des: ^0.0.4
-  # flutterwave_standard: ^1.0.4
   flutter_inappwebview: ^5.7.2+3
   uuid: ^3.0.7
-  flutterwave_standard:
-    path: package/Flutterwave-v3
   cached_network_image: ^3.2.3
   transparent_image: ^2.0.1
   modal_bottom_sheet: ^2.1.2

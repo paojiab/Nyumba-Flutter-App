@@ -280,20 +280,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  fluttertoast:
-    dependency: transitive
-    description:
-      name: fluttertoast
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "8.2.1"
-  flutterwave_standard:
-    dependency: "direct main"
-    description:
-      path: "package/Flutterwave-v3"
-      relative: true
-    source: path
-    version: "1.0.7"
   geocoding:
     dependency: "direct main"
     description:
