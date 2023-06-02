@@ -59,7 +59,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   text: "Card",
                 ),
               ]),
-          elevation: 0,
+          elevation: 1,
           leading: IconButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -69,7 +69,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 color: Colors.black,
               )),
           centerTitle: true,
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
           title: Text(
             "UGX ${NumberFormat('#,###').format(widget.amount)}",
             style: const TextStyle(color: Colors.black),

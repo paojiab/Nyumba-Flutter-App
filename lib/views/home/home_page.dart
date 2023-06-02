@@ -30,8 +30,8 @@ class _HomePageState extends State<HomePage> {
       length: 7,
       child: Scaffold(
         appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
+          elevation: 1,
+          backgroundColor: Colors.white,
           title: SizedBox(
             height: 45,
             child: TextField(
