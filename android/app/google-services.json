@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "530376124751",
+    "project_id": "spesnow-c5f73",
+    "storage_bucket": "spesnow-c5f73.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530376124751:android:6cdfeb39a1749a87fffd3a",
+        "android_client_info": {
+          "package_name": "com.spesnow.spesnow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "530376124751-2tgiealh6ane3mqjvlv6ani5q12hfqha.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS70PmDTOkHqD2HLVnEgyGPY713pq7u34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "530376124751-2tgiealh6ane3mqjvlv6ani5q12hfqha.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "530376124751-1itgk7k6o4sh3go88r9cnfjf1kn3aide.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.spesnow"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

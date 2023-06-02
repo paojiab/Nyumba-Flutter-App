@@ -1,14 +1,14 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spesnow/models/school.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_config/flutter_config.dart';
 
 class SchoolProvider {
   // get nearby Schools
-  Future<List<SchoolModel>> getNearbySchools(String institute) async {
-    final apiKey = FlutterConfig.get('GOOGLE_MAPS_API_KEY');
-    LatLng location = const LatLng(0.0524447, 32.4613937);
+  Future<List<SchoolModel>> getNearbySchools(String institute, double latitude, double longitude) async {
+    final apiKey = dotenv.get('GOOGLE_MAPS_API_KEY');
+    LatLng location = LatLng(latitude, longitude);
     const radius = '5000'; // in meters
     final type = institute;
     const rankBy = 'distance';
