@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:spesnow/partials/loading_status.dart';
 import 'package:spesnow/providers/algolia.dart';
 
 class FilterPage extends StatefulWidget {
@@ -22,7 +22,7 @@ class _FilterPageState extends State<FilterPage> {
   String priceFilter = "";
   String minPriceFilter = "";
   String maxPriceFilter = "";
-  int isFiltering = 1;
+  LoadingStatus _loadingStatus = LoadingStatus.loading;
   int nbHits = 0;
   double minPrice = 0;
   double maxPrice = 0;
@@ -64,18 +64,18 @@ class _FilterPageState extends State<FilterPage> {
         priceRangeValues = RangeValues(minPrice, maxPrice);
         minPriceController.text = priceStats["min"].toString();
         maxPriceController.text = priceStats["max"].toString();
-        isFiltering = 0;
+        _loadingStatus = LoadingStatus.successful;
       });
     } catch (e) {
       setState(() {
-        isFiltering = 2;
+        _loadingStatus = LoadingStatus.failed;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isFiltering == 1) {
+    if (_loadingStatus == LoadingStatus.loading) {
       return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -99,7 +99,7 @@ class _FilterPageState extends State<FilterPage> {
           ),
         ),
       );
-    } else if (isFiltering == 2) {
+    } else if (_loadingStatus == LoadingStatus.failed) {
       return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -156,7 +156,7 @@ class _FilterPageState extends State<FilterPage> {
                     setState(() {
                       categoryFilter = "";
                       priceFilter = "";
-                      isFiltering == 1;
+                      _loadingStatus = LoadingStatus.loading;
                     });
                     filter();
                   }
@@ -229,7 +229,7 @@ class _FilterPageState extends State<FilterPage> {
                             categoryFilter = priceFilter.isNotEmpty
                                 ? "category:'${categories[index]}' AND "
                                 : "category:'${categories[index]}'";
-                            isFiltering = 1;
+                            _loadingStatus = LoadingStatus.loading;
                             filter();
                           });
                         },

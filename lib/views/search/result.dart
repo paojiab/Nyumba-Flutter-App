@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:spesnow/partials/loading_status.dart';
 import 'package:spesnow/providers/algolia.dart';
 import 'package:spesnow/views/property.dart';
 import 'package:spesnow/views/search/filter.dart';
 import 'package:transparent_image/transparent_image.dart';
-import '../../generated/l10n.dart';
 import 'package:intl/intl.dart';
 
 import '../home/home_page.dart';
@@ -32,8 +32,8 @@ class _SearchState extends State<Search> {
   List rentals = [];
   int nbHits = 0;
   String queryID = "";
-  int querying = 1;
   String? userToken;
+  LoadingStatus _loadingStatus = LoadingStatus.loading;
 
   @override
   void initState() {
@@ -60,21 +60,21 @@ class _SearchState extends State<Search> {
       final response = await AlgoliaProvider()
           .fetchQueries(widget.search, index, filterParams);
       setState(() {
-        querying = 0;
+        _loadingStatus = LoadingStatus.successful;
         rentals = response['hits'];
         queryID = response['queryID'];
         nbHits = response['nbHits'];
       });
     } catch (e) {
       setState(() {
-        querying = 2;
+        _loadingStatus = LoadingStatus.failed;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (querying == 1) {
+    if (_loadingStatus == LoadingStatus.loading) {
       return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -108,7 +108,7 @@ class _SearchState extends State<Search> {
           child: CircularProgressIndicator(color: Colors.black54),
         ),
       );
-    } else if (querying == 2) {
+    } else if (_loadingStatus == LoadingStatus.failed) {
       return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -201,7 +201,7 @@ class _SearchState extends State<Search> {
                         if (value == "Lowest price") {
                           setState(() {
                             dropdownValue = value!;
-                            querying = 1;
+                            _loadingStatus = LoadingStatus.loading;
                           });
                           search("firestore_rentals_price_asc");
                         } else if (value == "Highest price") {
@@ -240,7 +240,7 @@ class _SearchState extends State<Search> {
                             widget.categoryFilter = result["categoryFilter"];
                             filterParams =
                                 widget.priceFilter! + widget.categoryFilter!;
-                            querying = 1;
+                            _loadingStatus = LoadingStatus.loading;
                           });
                           search("firestore_rentals");
                         }

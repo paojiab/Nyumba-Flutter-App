@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:spesnow/partials/loading_status.dart';
 import 'package:spesnow/views/home/home_page.dart';
 import 'package:spesnow/providers/algolia.dart';
 import 'package:spesnow/providers/location.dart';
@@ -18,7 +19,7 @@ class _ScoutPageState extends State<ScoutPage> {
   String? locale = "Show my location";
   double lat = 0;
   double lng = 0;
-  int isLoading = 1;
+  LoadingStatus _loadingStatus = LoadingStatus.loading;
   bool showing = false;
 
   @override
@@ -33,11 +34,11 @@ class _ScoutPageState extends State<ScoutPage> {
       setState(() {
         lat = cords.latitude;
         lng = cords.longitude;
-        isLoading = 0;
+        _loadingStatus = LoadingStatus.successful;
       });
     } catch (e) {
       setState(() {
-        isLoading = 2;
+        _loadingStatus = LoadingStatus.failed;
       });
     }
   }
@@ -57,7 +58,7 @@ class _ScoutPageState extends State<ScoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading == 1) {
+    if (_loadingStatus == LoadingStatus.loading) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -76,7 +77,7 @@ class _ScoutPageState extends State<ScoutPage> {
           ),
         ),
       );
-    } else if (isLoading == 2) {
+    } else if (_loadingStatus == LoadingStatus.failed) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -103,17 +104,17 @@ class _ScoutPageState extends State<ScoutPage> {
               height: 50,
               child: ElevatedButton(
                 style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50.0),
-                        ),
-                      ),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.black54),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0),
                     ),
+                  ),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.black54),
+                ),
                 onPressed: () {
                   setState(() {
-                    isLoading = 1;
+                    _loadingStatus = LoadingStatus.loading;
                   });
                   locate();
                 },
@@ -177,8 +178,11 @@ class _ScoutPageState extends State<ScoutPage> {
                         child: SizedBox(
                             width: double.infinity,
                             height: 450,
-                            child:
-                                Center(child: Text("Couldn't load rentals", style: TextStyle(fontSize: 16),))),
+                            child: Center(
+                                child: Text(
+                              "Couldn't load rentals",
+                              style: TextStyle(fontSize: 16),
+                            ))),
                       ),
                     );
                   } else if (snapshot.hasData) {
@@ -342,21 +346,21 @@ class _RentalsListState extends State<RentalsList> {
                           ),
                         ),
                         Text(
-                    widget.rentals[index]['bedrooms'] == 1 ?
-                    "1 Bedroom":
-                    "${widget.rentals[index]['bedrooms']} Bedrooms",
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 124, 123, 123),
-                    ),
-                  ),
-                  Text(
-                    widget.rentals[index]['bathrooms'] == 1 ?
-                    "1 Bathroom":
-                    "${widget.rentals[index]['bathrooms']} Bathrooms",
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 124, 123, 123),
-                    ),
-                  ),
+                          widget.rentals[index]['bedrooms'] == 1
+                              ? "1 Bedroom"
+                              : "${widget.rentals[index]['bedrooms']} Bedrooms",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 124, 123, 123),
+                          ),
+                        ),
+                        Text(
+                          widget.rentals[index]['bathrooms'] == 1
+                              ? "1 Bathroom"
+                              : "${widget.rentals[index]['bathrooms']} Bathrooms",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 124, 123, 123),
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Row(
@@ -364,7 +368,8 @@ class _RentalsListState extends State<RentalsList> {
                               Text(
                                 "UGX ${NumberFormat('#,###').format(widget.rentals[index]['price'])}",
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline),
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 4.0),

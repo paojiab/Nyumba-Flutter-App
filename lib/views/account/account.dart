@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:spesnow/partials/auth_status.dart';
 import 'package:spesnow/views/auth/close_account.dart';
 import 'package:spesnow/views/account/settings.dart';
 import 'package:spesnow/views/auth/sign_in.dart';
@@ -19,7 +20,7 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-  String _isLoggedIn = "loading";
+  AuthStatus _authStatus = AuthStatus.loading;
   bool hide = true;
   Map<String, dynamic> _user = {};
   @override
@@ -32,12 +33,12 @@ class _AccountState extends State<Account> {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
         setState(() {
-          _isLoggedIn = "false";
+          _authStatus = AuthStatus.loggedOut;
         });
       } else {
         _user = firebaseAuth().getUser();
         setState(() {
-          _isLoggedIn = "true";
+          _authStatus = AuthStatus.loggedIn;
         });
       }
     });
@@ -45,7 +46,7 @@ class _AccountState extends State<Account> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoggedIn == "false") {
+    if (_authStatus == AuthStatus.loggedOut) {
       return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -128,7 +129,7 @@ class _AccountState extends State<Account> {
           ),
         ),
       );
-    } else if (_isLoggedIn == "true") {
+    } else if (_authStatus == AuthStatus.loggedIn) {
       if (!_user['emailVerified']) {
         return Scaffold(
           appBar: AppBar(

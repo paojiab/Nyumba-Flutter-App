@@ -21,15 +21,13 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   final _cardFormKey = GlobalKey<FormState>();
-  bool isLoading = false;
+  bool _isLoading = false;
   final phoneNumberController = TextEditingController();
   final cardNumberController = TextEditingController();
   final expiryMonthController = TextEditingController();
   final expiryYearController = TextEditingController();
   final securityCodeController = TextEditingController();
   String raveUrl = "";
-  bool airtel = true;
-  bool mtn = false;
 
   @override
   void dispose() {
@@ -144,15 +142,15 @@ class _PaymentPageState extends State<PaymentPage> {
                                 ),
                               ),
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  isLoading
+                                  _isLoading
                                       ? Colors.brown.shade300
                                       : Colors.brown),
                             ),
                             onPressed: () async {
                               if (_formKey.currentState!.validate() &&
-                                  !isLoading) {
+                                  !_isLoading) {
                                 setState(() {
-                                  isLoading = true;
+                                  _isLoading = true;
                                 });
                                 try {
                                   await flutteraveProvider()
@@ -164,7 +162,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                   )
                                       .then((value) {
                                     setState(() {
-                                      isLoading = false;
+                                      _isLoading = false;
                                     });
                                     Navigator.pushReplacement(
                                         context,
@@ -187,12 +185,12 @@ class _PaymentPageState extends State<PaymentPage> {
                                             const Text("Something went wrong")),
                                   );
                                   setState(() {
-                                    isLoading = false;
+                                    _isLoading = false;
                                   });
                                 }
                               }
                             },
-                            child: isLoading
+                            child: _isLoading
                                 ? const Text('Loading..')
                                 : const Text("Pay",
                                     style: TextStyle(fontSize: 18)),
@@ -416,12 +414,12 @@ class _PaymentPageState extends State<PaymentPage> {
                                 ),
                               ),
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  isLoading
+                                  _isLoading
                                       ? Colors.brown.shade300
                                       : Colors.brown),
                             ),
                             onPressed: () async {
-                              if (_cardFormKey.currentState!.validate() && !isLoading) {
+                              if (_cardFormKey.currentState!.validate() && !_isLoading) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       shape: RoundedRectangleBorder(
@@ -434,7 +432,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                 );
                               }
                             },
-                            child: isLoading
+                            child: _isLoading
                                 ? const Text('Loading..')
                                 : const Text("Pay",
                                     style: TextStyle(fontSize: 18)),

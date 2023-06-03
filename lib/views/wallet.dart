@@ -2,14 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:spesnow/partials/auth_status.dart';
 import 'package:spesnow/views/auth/close_account.dart';
 import 'package:spesnow/providers/firebase_auth_provider.dart';
 import 'package:spesnow/views/auth/sign_in.dart';
 import 'package:spesnow/views/auth/sign_up.dart';
 import 'package:spesnow/views/auth/verify_email.dart';
 import 'package:spesnow/components/bottom_modal_keys.dart';
-import 'package:spesnow/views/payment/payment.dart';
-import '../generated/l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Wallet extends StatefulWidget {
@@ -20,7 +19,7 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> {
-  String _isLoggedIn = "loading";
+  AuthStatus _authStatus = AuthStatus.loading;
   Map<String, dynamic> _user = {};
   late int keys;
 
@@ -40,12 +39,12 @@ class _WalletState extends State<Wallet> {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
         setState(() {
-          _isLoggedIn = "false";
+          _authStatus = AuthStatus.loggedOut;
         });
       } else {
         _user = firebaseAuth().getUser();
         setState(() {
-          _isLoggedIn = "true";
+          _authStatus = AuthStatus.loggedIn;
         });
       }
     });
@@ -53,7 +52,7 @@ class _WalletState extends State<Wallet> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoggedIn == "false") {
+    if (_authStatus == AuthStatus.loggedOut) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -92,10 +91,10 @@ class _WalletState extends State<Wallet> {
                     width: 150,
                     child: ElevatedButton(
                       onPressed: () {
-                         showCupertinoModalBottomSheet(
-                  context: context,
-                  builder: (context) => const Login(),
-                );
+                        showCupertinoModalBottomSheet(
+                          context: context,
+                          builder: (context) => const Login(),
+                        );
                       },
                       child: const Text(
                         'Log In',
@@ -116,9 +115,9 @@ class _WalletState extends State<Wallet> {
                     TextButton(
                       onPressed: () {
                         showCupertinoModalBottomSheet(
-                  context: context,
-                  builder: (context) => const signUpPage(),
-                );
+                          context: context,
+                          builder: (context) => const signUpPage(),
+                        );
                       },
                       child: const Text(
                         'Sign Up',
@@ -136,7 +135,7 @@ class _WalletState extends State<Wallet> {
           ),
         ),
       );
-    } else if (_isLoggedIn == "true") {
+    } else if (_authStatus == AuthStatus.loggedIn) {
       if (!_user['emailVerified']) {
         return Scaffold(
           appBar: AppBar(
