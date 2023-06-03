@@ -21,13 +21,13 @@ class AlgoliaRentalsWidget extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               if (queryID != null) {
-                 Future.delayed(const Duration(milliseconds: 100), () async {
-                await AlgoliaProvider().sendEvents(
-                    queryID!,
-                    rentals[index]['objectID'],
-                    index + 1,
-                    userToken ?? "anonymous");
-              });
+                Future.delayed(const Duration(milliseconds: 100), () async {
+                  await AlgoliaProvider().sendEvents(
+                      queryID!,
+                      rentals[index]['objectID'],
+                      index + 1,
+                      userToken ?? "anonymous");
+                });
               }
               Navigator.push(
                 context,
@@ -106,6 +106,28 @@ class AlgoliaRentalsWidget extends StatelessWidget {
                           ),
                         ),
                       ),
+                      rentals[index]["sponsored"]
+                          ? Positioned(
+                              left: 10,
+                              top: 13,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0),
+                                child: Container(
+                                  color: Colors.black54,
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Sponsored",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          letterSpacing: 1.0,
+                                          fontSize: 10),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                     ],
                   ),
                   SizedBox(
