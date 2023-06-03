@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:spesnow/components/algolia_rentals_widget.dart';
+import 'package:spesnow/components/rental_widgets/algolia_rentals_widget.dart';
 import 'package:spesnow/partials/loading_status.dart';
 import 'package:spesnow/providers/algolia.dart';
 import 'package:spesnow/views/property.dart';

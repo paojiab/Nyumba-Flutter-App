@@ -229,7 +229,7 @@ class _AccountState extends State<Account> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => accountSettingsPage(user: _user),
+                    builder: (context) => AccountSettingsPage(user: _user),
                   ),
                 );
               },

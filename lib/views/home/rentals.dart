@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spesnow/components/firestore_rental_widget.dart';
+import 'package:spesnow/components/rental_widgets/firestore_rental_widget.dart';
 import 'package:spesnow/providers/firestore_provider.dart';
 
 class HomepageRentals extends StatelessWidget {
